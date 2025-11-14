@@ -1,65 +1,123 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+import { NetworkStats } from '@/types';
+import NetworkCard from '@/components/NetworkCard';
+import HashrateChart from '@/components/HashrateChart';
 
 export default function Home() {
+  const [networkData, setNetworkData] = useState<NetworkStats[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/hashrate');
+        const result = await response.json();
+
+        if (result.success) {
+          setNetworkData(result.data);
+        } else {
+          setError(result.error);
+        }
+      } catch (err) {
+        setError('Failed to fetch network data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+    // Refresh data every 5 minutes
+    const interval = setInterval(fetchData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
+      {/* Header */}
+      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">
+                BloxChaser
+              </h1>
+              <p className="text-slate-400">
+                Real-Time Mining Network Analytics
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-slate-400">Networks Tracked</div>
+              <div className="text-3xl font-bold text-blue-400">{networkData.length}</div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {loading && (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-slate-400">Loading network data...</p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-900/20 border border-red-800 rounded-lg p-6 text-center">
+            <p className="text-red-400">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && networkData.length > 0 && (
+          <div className="space-y-8">
+            {/* Network Cards Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {networkData.map((stats) => (
+                <NetworkCard key={stats.symbol} stats={stats} />
+              ))}
+            </div>
+
+            {/* Charts Section */}
+            <div className="space-y-6">
+              {networkData.map((stats) => (
+                <HashrateChart key={`chart-${stats.symbol}`} stats={stats} />
+              ))}
+            </div>
+
+            {/* Coming Soon Section */}
+            <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/50 rounded-xl p-8 text-center">
+              <h2 className="text-2xl font-bold text-white mb-3">More Networks Coming Soon</h2>
+              <p className="text-slate-400 mb-4">
+                Ethereum Classic, Litecoin, Monero, Dogecoin, Kaspa, and more...
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {['ETC', 'LTC', 'XMR', 'DOGE', 'KAS', 'RVN', 'ERG', 'FLUX'].map((coin) => (
+                  <span
+                    key={coin}
+                    className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-slate-400 text-sm"
+                  >
+                    {coin}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-700 bg-slate-900/50 backdrop-blur-sm mt-16">
+        <div className="container mx-auto px-4 py-6 text-center text-slate-400 text-sm">
+          <p>Built for miners, by miners. Open source on GitHub.</p>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BloxChaser
+
+**Real-Time Mining Network Analytics**
+
+BloxChaser is a mining network analytics dashboard that tracks hashrate trends, difficulty adjustments, and network health for top mineable cryptocurrencies.
+
+## Features
+
+- 📊 **Real-time hashrate tracking** for Bitcoin (more coins coming soon)
+- 📈 **Historical charts** showing 180 days of network data
+- 🔥 **Trend analysis** - 7d, 30d, 90d hashrate changes
+- ⚡ **Live difficulty tracking**
+- 🎨 **Beautiful, responsive UI** built with Next.js and Tailwind CSS
+- 🔄 **Auto-refresh** every 5 minutes
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone <your-repo-url>
+cd bloxchaser
+
+# Install dependencies
+npm install
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Roadmap
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Currently Tracking
+- ✅ Bitcoin (BTC)
 
-## Learn More
+### Coming Soon
+- [ ] Ethereum Classic (ETC)
+- [ ] Litecoin (LTC)
+- [ ] Monero (XMR)
+- [ ] Dogecoin (DOGE)
+- [ ] Kaspa (KAS)
+- [ ] Ravencoin (RVN)
+- [ ] Ergo (ERG)
+- [ ] Flux (FLUX)
+- [ ] Zcash (ZEC)
+- [ ] Bitcoin Cash (BCH)
 
-To learn more about Next.js, take a look at the following resources:
+## Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Frontend**: Next.js 14, React, TypeScript
+- **Styling**: Tailwind CSS
+- **Charts**: Recharts
+- **Data**: Blockchain.com API (no API key required)
+- **Deployment**: Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+bloxchaser/
+├── app/
+│   ├── api/hashrate/     # API routes for fetching data
+│   ├── page.tsx          # Main dashboard page
+│   └── layout.tsx        # Root layout
+├── components/
+│   ├── NetworkCard.tsx   # Network stats card
+│   └── HashrateChart.tsx # Historical hashrate chart
+├── lib/
+│   └── fetchBitcoinData.ts # Data fetching utilities
+└── types/
+    └── index.ts          # TypeScript type definitions
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contributions are welcome! Feel free to:
+- Add support for more coins
+- Improve the UI/UX
+- Add new features (alerts, comparisons, profitability calculators)
+- Fix bugs
+
+## License
+
+MIT
+
+---
+
+**Built for miners, by miners.**
