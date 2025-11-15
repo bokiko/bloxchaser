@@ -89,20 +89,46 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
       {/* Header */}
-      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b border-slate-700 bg-slate-900/80 backdrop-blur-md shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2">
-                bloxchaser
-              </h1>
-              <p className="text-slate-400">
-                Real-Time Mining Network Analytics
-              </p>
+            <div className="flex items-center gap-4">
+              {/* Animated Logo Icon */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity animate-pulse"></div>
+                <div className="relative bg-gradient-to-br from-blue-600 to-cyan-600 p-3 rounded-lg shadow-xl">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Brand Text */}
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent mb-2 hover:from-blue-200 hover:to-cyan-200 transition-all duration-300">
+                  bloxchaser
+                </h1>
+                <p className="text-slate-400 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Real-Time Mining Network Analytics
+                </p>
+              </div>
             </div>
+
             <div className="text-right">
+              {/* Live Data Indicator */}
+              <div className="flex items-center justify-end gap-2 mb-2">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                <span className="text-xs font-semibold text-green-400 uppercase tracking-wide">Live Data</span>
+              </div>
+
               <div className="text-sm text-slate-400">Networks Tracked</div>
-              <div className="text-3xl font-bold text-blue-400">{networkData.length}</div>
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{networkData.length}</div>
             </div>
           </div>
         </div>
@@ -146,8 +172,61 @@ export default async function Home() {
 
       {/* Footer */}
       <footer className="border-t border-slate-700 bg-slate-900/50 backdrop-blur-sm mt-16">
-        <div className="container mx-auto px-4 py-6 text-center text-slate-400 text-sm">
-          <p>Built for miners, by miners. Open source on GitHub.</p>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+            {/* Left: Branding */}
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">bloxchaser</h3>
+              <p className="text-slate-400 text-sm">Built for miners, by miners.</p>
+              <p className="text-slate-500 text-xs mt-2">© 2025 bloxchaser</p>
+            </div>
+
+            {/* Center: Links */}
+            <div className="flex items-center justify-center gap-6">
+              <a href="https://github.com/bokiko/bloxchaser" target="_blank" rel="noopener noreferrer"
+                 className="text-slate-400 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <span className="text-sm hidden sm:inline">GitHub</span>
+              </a>
+              <a href="https://twitter.com/bloxchaser" target="_blank" rel="noopener noreferrer"
+                 className="text-slate-400 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                </svg>
+                <span className="text-sm hidden sm:inline">Twitter</span>
+              </a>
+            </div>
+
+            {/* Right: Disclaimer */}
+            <div className="text-left md:text-right">
+              <p className="text-slate-400 text-xs flex items-center md:justify-end gap-1.5 mb-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Data updates every hour
+              </p>
+              <p className="text-slate-500 text-xs flex items-center md:justify-end gap-1.5">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                Not financial advice
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom Bar: Additional Links */}
+          <div className="border-t border-slate-700/50 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+            <div className="flex gap-4">
+              <a href="#" className="hover:text-slate-400 transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-slate-400 transition-colors">Terms of Use</a>
+              <a href="https://github.com/bokiko/bloxchaser#readme" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">Documentation</a>
+            </div>
+            <div className="text-center sm:text-right">
+              Made with <span className="text-red-500">♥</span> for the mining community
+            </div>
+          </div>
         </div>
       </footer>
     </div>
