@@ -20,16 +20,21 @@ bloxchaser is a comprehensive mining network analytics dashboard that tracks has
 
 ## Supported Cryptocurrencies
 
-| Coin | Symbol | Data Source | Hashrate Unit |
-|------|--------|-------------|---------------|
-| Bitcoin | BTC | Mempool.space API | EH/s (Exahash) |
-| Litecoin | LTC | Minerstat API | TH/s (Terahash) |
-| Monero | XMR | Minerstat API | GH/s (Gigahash) |
-| Dogecoin | DOGE | GetBlock RPC | TH/s (Terahash) |
-| Kaspa | KAS | Minerstat API | TH/s (Terahash) |
-| Ethereum Classic | ETC | Minerstat API | TH/s (Terahash) |
+| Coin | Symbol | Hashrate Source | Price Source | Unit |
+|------|--------|-----------------|--------------|------|
+| Bitcoin | BTC | Mempool.space | CoinGecko / CoinPaprika / Minerstat | EH/s (Exahash) |
+| Litecoin | LTC | Litecoinspace.org | CoinGecko / CoinPaprika / Minerstat | TH/s (Terahash) |
+| Monero | XMR | Minerstat | CoinGecko / CoinPaprika / Minerstat | GH/s (Gigahash) |
+| Dogecoin | DOGE | GetBlock RPC | CoinGecko / CoinPaprika | TH/s (Terahash) |
+| Kaspa | KAS | api.kaspa.org | CoinGecko / CoinPaprika | PH/s (Petahash) |
+| Ethereum Classic | ETC | Blockscout + Minerstat | Blockscout | TH/s (Terahash) |
 
-**Price Data**: CoinGecko API (24h change, market cap)
+**Price Data Fallback Chain**:
+1. CoinGecko API (primary - fastest updates)
+2. CoinPaprika API (backup - no API key required)
+3. Minerstat API (final fallback)
+
+This ensures financial data is never missing due to API rate limiting or outages.
 
 ## Getting Started
 
@@ -68,10 +73,14 @@ npm start
 - **Styling**: Tailwind CSS
 - **Charts**: Recharts
 - **Data Sources**:
-  - Mempool.space API (Bitcoin)
-  - Minerstat API v2 (LTC, XMR, KAS, ETC)
-  - GetBlock Public RPC (Dogecoin)
-  - CoinGecko API (Price data)
+  - Mempool.space API (Bitcoin hashrate & history)
+  - Litecoinspace.org API (Litecoin hashrate & history)
+  - GetBlock Public RPC (Dogecoin hashrate)
+  - api.kaspa.org (Kaspa hashrate)
+  - Blockscout API (ETC price, market cap, historical data)
+  - Minerstat API v2 (XMR, BTC/LTC price backup, ETC hashrate)
+  - CoinGecko API (Primary price source with fallback chain)
+  - CoinPaprika API (Price fallback, no API key required)
 - **Date Formatting**: date-fns
 - **HTTP Client**: axios
 - **Security**:
@@ -142,11 +151,15 @@ Returns real-time network statistics for all supported coins.
 ## Data Sources & Limits
 
 - **Mempool.space**: No API key required, public endpoint
+- **Litecoinspace.org**: No API key required, public endpoint
+- **api.kaspa.org**: No API key required, official Kaspa API
+- **Blockscout (ETC)**: No API key required, public blockchain explorer
 - **Minerstat API**: Free tier, 12 requests/minute
 - **GetBlock RPC**: Public endpoint for Dogecoin
-- **CoinGecko**: Free tier, rate limited
+- **CoinGecko**: Free tier, rate limited (primary price source)
+- **CoinPaprika**: Free tier, 5-minute updates, no API key required (price fallback)
 
-All APIs are used responsibly with appropriate caching to minimize requests.
+All APIs are used responsibly with appropriate caching (1-hour) to minimize requests and prevent rate limiting.
 
 ## Architecture & Performance
 
@@ -211,10 +224,14 @@ MIT License - see LICENSE file for details
 
 ## Acknowledgments
 
-- Mempool.space for Bitcoin data
-- Minerstat for multi-coin network data
+- Mempool.space for Bitcoin hashrate & historical data
+- Litecoinspace.org for Litecoin network data
+- api.kaspa.org for official Kaspa hashrate API
+- Blockscout for Ethereum Classic blockchain data
+- Minerstat for multi-coin network data and price backup
 - GetBlock for Dogecoin RPC access
-- CoinGecko for price data
+- CoinGecko for primary price data
+- CoinPaprika for reliable price fallback (no API key required)
 
 ---
 

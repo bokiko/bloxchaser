@@ -169,36 +169,67 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       <main className="container mx-auto px-4 py-6 md:py-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700">
-            <div className="text-slate-400 text-xs md:text-sm mb-2">Network Hashrate</div>
+          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700 group relative">
+            <div className="text-slate-400 text-xs md:text-sm mb-2 flex items-center gap-1">
+              Network Hashrate
+              <svg className="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="hidden group-hover:block absolute z-10 w-64 p-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 top-0 left-0 transform -translate-y-full mt-2">
+              Total computational power securing the network
+            </div>
             <div className="text-xl md:text-2xl font-bold text-white">
               {coinData.currentHashrate.toFixed(2)}
             </div>
             <div className="text-slate-500 text-xs md:text-sm">{getHashrateUnit(symbol)}</div>
           </div>
 
-          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700">
-            <div className="text-slate-400 text-xs md:text-sm mb-2">Market Cap</div>
+          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700 group relative">
+            <div className="text-slate-400 text-xs md:text-sm mb-2 flex items-center gap-1">
+              Market Cap
+              <svg className="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="hidden group-hover:block absolute z-10 w-64 p-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 top-0 left-0 transform -translate-y-full mt-2">
+              Total market value of all circulating coins
+            </div>
             <div className="text-xl md:text-2xl font-bold text-white">
               ${(coinData.marketCap / 1e9).toFixed(2)}B
             </div>
             <div className="text-slate-500 text-xs md:text-sm">USD</div>
           </div>
 
-          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700">
-            <div className="text-slate-400 text-xs md:text-sm mb-2">Difficulty</div>
+          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700 group relative">
+            <div className="text-slate-400 text-xs md:text-sm mb-2 flex items-center gap-1">
+              Difficulty
+              <svg className="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="hidden group-hover:block absolute z-10 w-64 p-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 top-0 left-0 transform -translate-y-full mt-2">
+              Measure of how hard it is to mine a new block
+            </div>
             <div className="text-xl md:text-2xl font-bold text-white">
               {formatDifficulty(coinData.currentDifficulty)}
             </div>
             <div className="text-slate-500 text-xs md:text-sm">Network</div>
           </div>
 
-          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700">
-            <div className="text-slate-400 text-xs md:text-sm mb-2">Last Updated</div>
+          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700 group relative">
+            <div className="text-slate-400 text-xs md:text-sm mb-2 flex items-center gap-1">
+              Last Updated
+              <svg className="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="hidden group-hover:block absolute z-10 w-64 p-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 top-0 left-0 transform -translate-y-full mt-2">
+              {new Date(coinData.lastUpdated).toUTCString()}
+            </div>
             <div className="text-xl md:text-2xl font-bold text-white">
               {formatDistanceToNow(coinData.lastUpdated, { addSuffix: true }).replace('about ', '')}
             </div>
-            <div className="text-slate-500 text-xs md:text-sm">ago</div>
           </div>
         </div>
 
@@ -206,20 +237,44 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
         <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700 mb-8">
           <h2 className="text-lg md:text-xl font-bold text-white mb-4">Hashrate Trends</h2>
           <div className="grid grid-cols-3 gap-4">
-            <div>
-              <div className="text-slate-400 text-xs md:text-sm mb-2">7 Days</div>
+            <div className="group relative">
+              <div className="text-slate-400 text-xs md:text-sm mb-2 flex items-center gap-1">
+                7 Days
+                <svg className="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="hidden group-hover:block absolute z-10 w-48 p-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 top-0 left-0 transform -translate-y-full">
+                Hashrate change over the past week
+              </div>
               <div className={`text-xl md:text-2xl font-bold ${getChangeColor(coinData.change7d)}`}>
                 {formatChange(coinData.change7d)}
               </div>
             </div>
-            <div>
-              <div className="text-slate-400 text-xs md:text-sm mb-2">30 Days</div>
+            <div className="group relative">
+              <div className="text-slate-400 text-xs md:text-sm mb-2 flex items-center gap-1">
+                30 Days
+                <svg className="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="hidden group-hover:block absolute z-10 w-48 p-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 top-0 left-0 transform -translate-y-full">
+                Hashrate change over the past month
+              </div>
               <div className={`text-xl md:text-2xl font-bold ${getChangeColor(coinData.change30d)}`}>
                 {formatChange(coinData.change30d)}
               </div>
             </div>
-            <div>
-              <div className="text-slate-400 text-xs md:text-sm mb-2">90 Days</div>
+            <div className="group relative">
+              <div className="text-slate-400 text-xs md:text-sm mb-2 flex items-center gap-1">
+                90 Days
+                <svg className="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="hidden group-hover:block absolute z-10 w-48 p-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 top-0 left-0 transform -translate-y-full">
+                Hashrate change over the past quarter
+              </div>
               <div className={`text-xl md:text-2xl font-bold ${getChangeColor(coinData.change90d)}`}>
                 {formatChange(coinData.change90d)}
               </div>
