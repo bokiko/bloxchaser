@@ -17,6 +17,12 @@ export default function HashrateChart({ stats }: HashrateChartProps) {
         return 'TH/s';
       case 'XMR':
         return 'GH/s';
+      case 'DOGE':
+        return 'TH/s';
+      case 'KAS':
+        return 'TH/s';
+      case 'ETC':
+        return 'TH/s';
       default:
         return 'H/s';
     }

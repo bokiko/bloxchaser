@@ -17,6 +17,12 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
         return 'TH/s'; // Terahashes
       case 'XMR':
         return 'GH/s'; // Gigahashes
+      case 'DOGE':
+        return 'TH/s'; // Terahashes (merged mining with LTC)
+      case 'KAS':
+        return 'TH/s'; // Terahashes
+      case 'ETC':
+        return 'TH/s'; // Terahashes
       default:
         return 'H/s';
     }
