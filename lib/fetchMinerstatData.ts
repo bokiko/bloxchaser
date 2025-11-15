@@ -97,17 +97,29 @@ export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> 
 
       // Convert hashrate to appropriate units
       let displayHashrate = coin.network_hashrate;
+      let conversionFactor = 1;
 
-      // Convert to TH/s for most coins (except BTC which we'll handle separately)
+      // Determine conversion factor for each coin
       if (coin.coin === 'LTC') {
-        displayHashrate = coin.network_hashrate / 1e12; // Convert H/s to TH/s
+        conversionFactor = 1e12; // Convert H/s to TH/s
+        displayHashrate = coin.network_hashrate / conversionFactor;
       } else if (coin.coin === 'XMR') {
-        displayHashrate = coin.network_hashrate / 1e9; // Convert H/s to GH/s
+        conversionFactor = 1e9; // Convert H/s to GH/s
+        displayHashrate = coin.network_hashrate / conversionFactor;
       } else if (coin.coin === 'KAS') {
-        displayHashrate = coin.network_hashrate / 1e24; // Convert H/s to TH/s (Kaspa uses very large numbers)
+        conversionFactor = 1e24; // Convert H/s to TH/s (Kaspa uses very large numbers)
+        displayHashrate = coin.network_hashrate / conversionFactor;
       } else if (coin.coin === 'ETC') {
-        displayHashrate = coin.network_hashrate / 1e12; // Convert H/s to TH/s
+        conversionFactor = 1e12; // Convert H/s to TH/s
+        displayHashrate = coin.network_hashrate / conversionFactor;
       }
+
+      // Convert historical data to the same units as current hashrate
+      const convertedHistoricalData = historicalData.map(point => ({
+        timestamp: point.timestamp,
+        hashrate: point.hashrate / conversionFactor,
+        difficulty: point.difficulty,
+      }));
 
       const networkStats: NetworkStats = {
         coin: coinInfo.name,
@@ -118,7 +130,7 @@ export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> 
         change30d,
         change90d,
         lastUpdated: coin.updated * 1000, // Convert to milliseconds
-        historicalData,
+        historicalData: convertedHistoricalData,
         currentPrice: coin.price,
         priceChange24h: 0, // Minerstat doesn't provide 24h change
         marketCap: 0, // Minerstat doesn't provide market cap
