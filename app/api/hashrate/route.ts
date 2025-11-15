@@ -3,6 +3,7 @@ import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
 import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
+import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
@@ -12,12 +13,13 @@ export const revalidate = 3600; // Cache for 1 hour
 export async function GET() {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinMempoolData, litecoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinMempoolData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),   // Bitcoin hashrate history from Mempool.space
       fetchLitecoinHashrate(),  // Litecoin from Litecoinspace.org
       fetchDogecoinHashrate(),  // Dogecoin from GetBlock RPC
       fetchKaspaHashrate(),     // Kaspa from official Kaspa API
-      fetchMinerstatCoins(),    // BTC, XMR, ETC from Minerstat (includes prices!)
+      fetchEthereumClassicHashrate(), // ETC from Blockscout + Minerstat
+      fetchMinerstatCoins(),    // BTC, XMR, LTC from Minerstat (includes prices!)
       fetchCryptoPrices(),      // Prices from CoinGecko (backup for 24h change and market cap)
     ]);
 
@@ -25,7 +27,6 @@ export async function GET() {
     const bitcoinMinerstatData = minerstatCoins.get('BTC');
     const litecoinMinerstatData = minerstatCoins.get('LTC'); // For price/difficulty fallback
     const moneroData = minerstatCoins.get('XMR');
-    const ethereumClassicData = minerstatCoins.get('ETC');
 
     // For Bitcoin: Use Mempool hashrate history + Minerstat price/difficulty
     const bitcoinWithPrice = {
@@ -66,11 +67,8 @@ export async function GET() {
       marketCap: prices.kaspa.marketCap || 0,
     };
 
-    const ethereumClassicWithPrice = ethereumClassicData ? {
-      ...ethereumClassicData,
-      priceChange24h: prices.ethereumClassic.change24h || 0,
-      marketCap: prices.ethereumClassic.marketCap || 0,
-    } : null;
+    // For ETC: Already has price/market cap from Blockscout, just use it directly
+    const ethereumClassicWithPrice = ethereumClassicData;
 
     // Filter out null values and return data
     const data = [

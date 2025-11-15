@@ -4,6 +4,7 @@ import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
 import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
+import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
@@ -13,20 +14,20 @@ export const revalidate = 3600;
 async function getNetworkData(): Promise<NetworkStats[]> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
       fetchKaspaHashrate(),
+      fetchEthereumClassicHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
 
-    // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR, ETC)
+    // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR)
     const bitcoinMinerstatData = minerstatCoins.get('BTC');
     const litecoinMinerstatData = minerstatCoins.get('LTC');
     const moneroData = minerstatCoins.get('XMR');
-    const ethereumClassicData = minerstatCoins.get('ETC');
 
     // Merge price data with network stats
     const bitcoinWithPrice = {
@@ -65,11 +66,8 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       marketCap: prices.kaspa.marketCap || 0,
     };
 
-    const ethereumClassicWithPrice = ethereumClassicData ? {
-      ...ethereumClassicData,
-      priceChange24h: prices.ethereumClassic.change24h,
-      marketCap: prices.ethereumClassic.marketCap,
-    } : null;
+    // ETC already has price/market cap from Blockscout, use it directly
+    const ethereumClassicWithPrice = ethereumClassicData;
 
     return [
       bitcoinWithPrice,

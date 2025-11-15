@@ -6,6 +6,7 @@ import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
 import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
+import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 import BackButton from '@/components/BackButton';
@@ -28,11 +29,12 @@ export async function generateStaticParams() {
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
       fetchKaspaHashrate(),
+      fetchEthereumClassicHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
@@ -80,12 +82,8 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         marketCap: prices.monero.marketCap || 0,
       } : null;
     } else if (symbolUpper === 'ETC') {
-      const etcData = minerstatCoins.get('ETC');
-      return etcData ? {
-        ...etcData,
-        priceChange24h: prices.ethereumClassic.change24h || 0,
-        marketCap: prices.ethereumClassic.marketCap || 0,
-      } : null;
+      // ETC already has price/market cap from Blockscout
+      return ethereumClassicData;
     }
 
     return null;
