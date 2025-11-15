@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { NetworkStats } from '@/types';
 import HashrateChart from '@/components/HashrateChart';
+import CoinTabs from '@/components/CoinTabs';
 import { formatDistanceToNow } from 'date-fns';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
@@ -264,6 +265,11 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
             </div>
             <div className="text-slate-500 text-xs md:text-sm">Network</div>
           </div>
+        </div>
+
+        {/* Financial & Network Tabs */}
+        <div className="mb-8">
+          <CoinTabs coinData={coinData} />
         </div>
 
         {/* Hashrate Changes */}

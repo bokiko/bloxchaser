@@ -18,6 +18,11 @@ export interface NetworkStats {
   currentPrice: number;
   priceChange24h: number;
   marketCap: number;
+  // Financial data (optional)
+  totalSupply?: number;
+  circulatingSupply?: number;
+  volume24h?: number;
+  marketCapRank?: number;
 }
 
 export interface CoinConfig {

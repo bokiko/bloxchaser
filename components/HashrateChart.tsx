@@ -1,14 +1,19 @@
 'use client';
 
 import { NetworkStats } from '@/types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { format } from 'date-fns';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { format, subDays, subMonths } from 'date-fns';
+import { useState } from 'react';
 
 interface HashrateChartProps {
   stats: NetworkStats;
 }
 
+type TimePeriod = '7d' | '30d' | '90d' | '6m' | '1y';
+
 export default function HashrateChart({ stats }: HashrateChartProps) {
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('90d');
+
   const getHashrateUnit = () => {
     switch (stats.symbol) {
       case 'BTC':
@@ -20,7 +25,7 @@ export default function HashrateChart({ stats }: HashrateChartProps) {
       case 'DOGE':
         return 'TH/s';
       case 'KAS':
-        return 'PH/s'; // Petahashes
+        return 'PH/s';
       case 'ETC':
         return 'TH/s';
       default:
@@ -28,21 +33,50 @@ export default function HashrateChart({ stats }: HashrateChartProps) {
     }
   };
 
-  const chartData = stats.historicalData.map((point) => ({
-    date: point.timestamp,
-    hashrate: point.hashrate,
-    difficulty: point.difficulty,
-  }));
+  const getFilteredData = () => {
+    const now = Date.now();
+    let cutoffDate: number;
+
+    switch (selectedPeriod) {
+      case '7d':
+        cutoffDate = subDays(now, 7).getTime();
+        break;
+      case '30d':
+        cutoffDate = subDays(now, 30).getTime();
+        break;
+      case '90d':
+        cutoffDate = subDays(now, 90).getTime();
+        break;
+      case '6m':
+        cutoffDate = subMonths(now, 6).getTime();
+        break;
+      case '1y':
+        cutoffDate = subMonths(now, 12).getTime();
+        break;
+      default:
+        cutoffDate = subDays(now, 90).getTime();
+    }
+
+    return stats.historicalData
+      .filter((point) => point.timestamp >= cutoffDate)
+      .map((point) => ({
+        date: point.timestamp,
+        hashrate: point.hashrate,
+        difficulty: point.difficulty,
+      }));
+  };
+
+  const chartData = getFilteredData();
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-800 border border-slate-600 rounded-lg p-3 shadow-xl">
-          <p className="text-slate-300 text-sm mb-2">
-            {format(new Date(payload[0].payload.date), 'MMM dd, yyyy')}
+        <div className="bg-slate-900/95 backdrop-blur-sm border border-cyan-500/30 rounded-lg p-4 shadow-2xl">
+          <p className="text-slate-300 text-xs mb-2">
+            {format(new Date(payload[0].payload.date), 'MMM dd, yyyy HH:mm')}
           </p>
-          <p className="text-white font-bold">
-            {payload[0].value.toFixed(2)} {getHashrateUnit()}
+          <p className="text-white font-bold text-lg">
+            {payload[0].value.toFixed(2)} <span className="text-cyan-400">{getHashrateUnit()}</span>
           </p>
         </div>
       );
@@ -50,42 +84,82 @@ export default function HashrateChart({ stats }: HashrateChartProps) {
     return null;
   };
 
+  const periods: { value: TimePeriod; label: string }[] = [
+    { value: '7d', label: '7 Days' },
+    { value: '30d', label: '30 Days' },
+    { value: '90d', label: '90 Days' },
+    { value: '6m', label: '6 Months' },
+    { value: '1y', label: '1 Year' },
+  ];
+
   return (
-    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 border border-slate-700 shadow-xl">
-      <div className="flex items-start justify-between mb-6">
-        <h3 className="text-xl font-bold text-white">Hashrate History (90 Days)</h3>
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-900/30 text-yellow-400 border border-yellow-700/50">
-          <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-          Demo Data
-        </span>
+    <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-white mb-1">Network Hashrate</h3>
+          <p className="text-slate-400 text-sm">Historical performance over time</p>
+        </div>
+
+        {/* Time Period Selector */}
+        <div className="flex gap-2 bg-slate-800/50 p-1 rounded-lg border border-slate-700/50">
+          {periods.map((period) => (
+            <button
+              key={period.value}
+              onClick={() => setSelectedPeriod(period.value)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 ${
+                selectedPeriod === period.value
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              {period.label}
+            </button>
+          ))}
+        </div>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+
+      <ResponsiveContainer width="100%" height={400}>
+        <AreaChart data={chartData}>
+          <defs>
+            <linearGradient id="colorHashrate" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
+              <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.3} />
           <XAxis
             dataKey="date"
-            tickFormatter={(timestamp) => format(new Date(timestamp), 'MMM dd')}
+            tickFormatter={(timestamp) => {
+              const date = new Date(timestamp);
+              if (selectedPeriod === '7d') {
+                return format(date, 'EEE');
+              } else if (selectedPeriod === '1y') {
+                return format(date, 'MMM yy');
+              }
+              return format(date, 'MMM dd');
+            }}
             stroke="#94a3b8"
             style={{ fontSize: '12px' }}
+            tickLine={false}
           />
           <YAxis
             stroke="#94a3b8"
             style={{ fontSize: '12px' }}
             tickFormatter={(value) => `${value.toFixed(0)}`}
-            label={{ value: getHashrateUnit(), angle: -90, position: 'insideLeft', fill: '#94a3b8' }}
+            label={{ value: getHashrateUnit(), angle: -90, position: 'insideLeft', fill: '#94a3b8', style: { fontSize: '14px' } }}
+            tickLine={false}
           />
-          <Tooltip content={<CustomTooltip />} />
-          <Line
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#06b6d4', strokeWidth: 1, strokeDasharray: '5 5' }} />
+          <Area
             type="monotone"
             dataKey="hashrate"
-            stroke="#3b82f6"
-            strokeWidth={2}
+            stroke="#06b6d4"
+            strokeWidth={3}
+            fill="url(#colorHashrate)"
             dot={false}
-            activeDot={{ r: 6 }}
+            activeDot={{ r: 6, fill: '#06b6d4', stroke: '#fff', strokeWidth: 2 }}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );
