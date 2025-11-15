@@ -9,6 +9,19 @@ interface HashrateChartProps {
 }
 
 export default function HashrateChart({ stats }: HashrateChartProps) {
+  const getHashrateUnit = () => {
+    switch (stats.symbol) {
+      case 'BTC':
+        return 'EH/s';
+      case 'LTC':
+        return 'TH/s';
+      case 'XMR':
+        return 'GH/s';
+      default:
+        return 'H/s';
+    }
+  };
+
   const chartData = stats.historicalData.map((point) => ({
     date: point.timestamp,
     hashrate: point.hashrate,
@@ -23,7 +36,7 @@ export default function HashrateChart({ stats }: HashrateChartProps) {
             {format(new Date(payload[0].payload.date), 'MMM dd, yyyy')}
           </p>
           <p className="text-white font-bold">
-            {payload[0].value.toFixed(2)} EH/s
+            {payload[0].value.toFixed(2)} {getHashrateUnit()}
           </p>
         </div>
       );
@@ -47,7 +60,7 @@ export default function HashrateChart({ stats }: HashrateChartProps) {
             stroke="#94a3b8"
             style={{ fontSize: '12px' }}
             tickFormatter={(value) => `${value.toFixed(0)}`}
-            label={{ value: 'EH/s', angle: -90, position: 'insideLeft', fill: '#94a3b8' }}
+            label={{ value: getHashrateUnit(), angle: -90, position: 'insideLeft', fill: '#94a3b8' }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Line

@@ -8,6 +8,19 @@ interface NetworkCardProps {
 }
 
 export default function NetworkCard({ stats }: NetworkCardProps) {
+  const getHashrateUnit = () => {
+    switch (stats.symbol) {
+      case 'BTC':
+        return 'EH/s'; // Exahashes
+      case 'LTC':
+        return 'TH/s'; // Terahashes
+      case 'XMR':
+        return 'GH/s'; // Gigahashes
+      default:
+        return 'H/s';
+    }
+  };
+
   const formatHashrate = (value: number) => {
     return value.toFixed(2);
   };
@@ -46,7 +59,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       <div className="mb-6">
         <div className="text-slate-400 text-sm mb-2">Network Hashrate</div>
         <div className="text-4xl font-bold text-white mb-1">
-          {formatHashrate(stats.currentHashrate)} <span className="text-2xl text-slate-400">EH/s</span>
+          {formatHashrate(stats.currentHashrate)} <span className="text-2xl text-slate-400">{getHashrateUnit()}</span>
         </div>
         <div className="text-slate-400 text-xs">
           Updated {formatDistanceToNow(stats.lastUpdated, { addSuffix: true })}

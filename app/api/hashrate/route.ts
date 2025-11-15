@@ -1,16 +1,23 @@
 import { NextResponse } from 'next/server';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
+import { fetchMoneroHashrate } from '@/lib/fetchMoneroData';
+import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Cache for 1 hour
 
 export async function GET() {
   try {
-    const bitcoinData = await fetchBitcoinHashrate();
+    // Fetch all coin data in parallel for better performance
+    const [bitcoinData, moneroData, litecoinData] = await Promise.all([
+      fetchBitcoinHashrate(),
+      fetchMoneroHashrate(),
+      fetchLitecoinHashrate(),
+    ]);
 
     return NextResponse.json({
       success: true,
-      data: [bitcoinData], // Array for future multi-coin support
+      data: [bitcoinData, litecoinData, moneroData], // Order: BTC, LTC, XMR
       timestamp: Date.now(),
     });
   } catch (error) {
