@@ -51,6 +51,9 @@ export async function fetchBitcoinHashrate(): Promise<NetworkStats> {
       change90d,
       lastUpdated: Date.now(),
       historicalData,
+      currentPrice: 0,
+      priceChange24h: 0,
+      marketCap: 0,
     };
   } catch (error) {
     console.error('Error fetching Bitcoin data:', error);
