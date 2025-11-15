@@ -14,6 +14,9 @@ BloxChaser is a comprehensive mining network analytics dashboard that tracks has
 - 🎨 **Beautiful, responsive UI** built with Next.js 15 and Tailwind CSS
 - 🔄 **Auto-refresh** data fetching with 1-hour cache
 - 📱 **Mobile-responsive** design for all screen sizes
+- 🔒 **Enterprise-level security** with comprehensive HTTP headers
+- 🚀 **Server-Side Rendering (SSR)** for optimal SEO and performance
+- 🔍 **SEO-optimized** with Open Graph and Twitter Card metadata
 
 ## Supported Cryptocurrencies
 
@@ -61,6 +64,7 @@ npm start
 ## Tech Stack
 
 - **Frontend**: Next.js 15, React 19, TypeScript
+- **Rendering**: Server-Side Rendering (SSR) with Incremental Static Regeneration (ISR)
 - **Styling**: Tailwind CSS
 - **Charts**: Recharts
 - **Data Sources**:
@@ -70,6 +74,10 @@ npm start
   - CoinGecko API (Price data)
 - **Date Formatting**: date-fns
 - **HTTP Client**: axios
+- **Security**:
+  - Content-Security-Policy (CSP)
+  - X-Content-Type-Options, X-Frame-Options
+  - Referrer-Policy
 - **Deployment**: Vercel-ready
 
 ## Project Structure
@@ -88,7 +96,8 @@ bloxchaser/
 │   └── globals.css               # Global styles
 ├── components/
 │   ├── NetworkCard.tsx           # Coin stats card component
-│   └── HashrateChart.tsx         # Historical hashrate chart component
+│   ├── HashrateChart.tsx         # Historical hashrate chart component
+│   └── BackButton.tsx            # Client-side navigation component
 ├── lib/
 │   ├── fetchBitcoinData.ts       # Bitcoin data fetcher (Mempool.space)
 │   ├── fetchDogecoinData.ts      # Dogecoin data fetcher (GetBlock RPC)
@@ -138,6 +147,40 @@ Returns real-time network statistics for all supported coins.
 - **CoinGecko**: Free tier, rate limited
 
 All APIs are used responsibly with appropriate caching to minimize requests.
+
+## Architecture & Performance
+
+### Server-Side Rendering (SSR)
+BloxChaser uses Next.js 15 Server Components for optimal performance and SEO:
+
+- **Full HTML on first load**: Crawlers and users see complete content immediately
+- **No loading states for bots**: SEO-friendly, perfect for Google, social media previews
+- **Incremental Static Regeneration (ISR)**: Pages revalidate every hour
+- **Static generation**: All 6 coin detail pages are pre-rendered at build time
+
+### Security Features
+
+All HTTP responses include enterprise-grade security headers:
+
+- **Content-Security-Policy (CSP)**: Prevents XSS attacks by whitelisting trusted sources
+- **X-Content-Type-Options**: Prevents MIME-type sniffing attacks
+- **X-Frame-Options**: Prevents clickjacking attacks
+- **Referrer-Policy**: Controls referrer information for privacy
+
+All external API calls are made server-side, keeping API endpoints secure and never exposed to the browser.
+
+### SEO Optimization
+
+- Comprehensive Open Graph and Twitter Card metadata
+- Semantic HTML with proper heading hierarchy
+- Optimized meta descriptions with relevant keywords
+- Crawler-friendly URLs and navigation structure
+
+## Data Transparency
+
+Historical hashrate data (90 days) is generated algorithmically for demonstration purposes. The charts display realistic variance patterns based on current network statistics. A clear disclaimer is shown on all historical charts.
+
+Current network data (hashrate, difficulty, price) is fetched in real-time from authoritative sources.
 
 ## Contributing
 
