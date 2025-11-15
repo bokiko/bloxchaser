@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { NetworkStats } from '@/types';
 import NetworkCard from '@/components/NetworkCard';
-import HashrateChart from '@/components/HashrateChart';
 
 export default function Home() {
   const [networkData, setNetworkData] = useState<NetworkStats[]>([]);
@@ -77,31 +76,24 @@ export default function Home() {
 
         {!loading && !error && networkData.length > 0 && (
           <div className="space-y-8">
-            {/* Network Cards Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Network Cards Grid - Mobile Friendly */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
               {networkData.map((stats) => (
                 <NetworkCard key={stats.symbol} stats={stats} />
               ))}
             </div>
 
-            {/* Charts Section */}
-            <div className="space-y-6">
-              {networkData.map((stats) => (
-                <HashrateChart key={`chart-${stats.symbol}`} stats={stats} />
-              ))}
-            </div>
-
             {/* Coming Soon Section */}
-            <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/50 rounded-xl p-8 text-center">
-              <h2 className="text-2xl font-bold text-white mb-3">More Networks Coming Soon</h2>
-              <p className="text-slate-400 mb-4">
-                Ethereum Classic, Litecoin, Monero, Dogecoin, Kaspa, and more...
+            <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/50 rounded-xl p-6 md:p-8 text-center">
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-3">More Networks Coming Soon</h2>
+              <p className="text-slate-400 mb-4 text-sm md:text-base">
+                Dogecoin, Kaspa, Ethereum Classic, and more...
               </p>
               <div className="flex flex-wrap justify-center gap-2">
-                {['ETC', 'LTC', 'XMR', 'DOGE', 'KAS', 'RVN', 'ERG', 'FLUX'].map((coin) => (
+                {['DOGE', 'KAS', 'ETC', 'RVN', 'ERG', 'FLUX'].map((coin) => (
                   <span
                     key={coin}
-                    className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-slate-400 text-sm"
+                    className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-slate-400 text-xs md:text-sm"
                   >
                     {coin}
                   </span>

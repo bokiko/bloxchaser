@@ -2,6 +2,7 @@
 
 import { NetworkStats } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import Link from 'next/link';
 
 interface NetworkCardProps {
   stats: NetworkStats;
@@ -90,7 +91,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       </div>
 
       {/* Changes */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <div>
           <div className="text-slate-400 text-xs mb-1">7 Days</div>
           <div className={`text-lg font-bold ${getChangeColor(stats.change7d)}`}>
@@ -110,6 +111,16 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
           </div>
         </div>
       </div>
+
+      {/* View Details Button */}
+      <Link href={`/coin/${stats.symbol.toLowerCase()}`}>
+        <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+          View Details & Chart
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </Link>
     </div>
   );
 }
