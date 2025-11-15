@@ -140,19 +140,67 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
     return value.toFixed(2);
   };
 
+  const getCoinLogo = (symbol: string) => {
+    const colors = {
+      BTC: { bg: 'from-orange-500 to-orange-600', icon: '#F7931A' },
+      LTC: { bg: 'from-slate-400 to-slate-500', icon: '#345D9D' },
+      XMR: { bg: 'from-orange-600 to-red-600', icon: '#FF6600' },
+      DOGE: { bg: 'from-yellow-400 to-yellow-500', icon: '#C2A633' },
+      KAS: { bg: 'from-teal-500 to-cyan-600', icon: '#49E9C9' },
+      ETC: { bg: 'from-green-600 to-emerald-700', icon: '#328332' },
+    };
+
+    const config = colors[symbol as keyof typeof colors] || colors.BTC;
+
+    return (
+      <div className="relative group">
+        <div className={`absolute inset-0 bg-gradient-to-r ${config.bg} rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity animate-pulse`}></div>
+        <div className={`relative bg-gradient-to-br ${config.bg} p-4 rounded-2xl shadow-2xl`}>
+          <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+            {symbol === 'BTC' && (
+              <path d="M23.638 14.904c-1.602 6.43-8.113 10.34-14.542 8.736C2.67 22.05-1.244 15.525.362 9.105 1.962 2.67 8.475-1.243 14.9.358c6.43 1.605 10.342 8.115 8.738 14.548v-.002zm-6.35-4.613c.24-1.59-.974-2.45-2.64-3.03l.54-2.153-1.315-.33-.525 2.107c-.345-.087-.705-.167-1.064-.25l.526-2.127-1.32-.33-.54 2.165c-.285-.067-.565-.132-.84-.2l-1.815-.45-.35 1.407s.975.225.955.236c.535.136.63.486.615.766l-1.477 5.92c-.075.166-.24.406-.614.314.015.02-.96-.24-.96-.24l-.66 1.51 1.71.426.93.242-.54 2.19 1.32.327.54-2.17c.36.1.705.19 1.05.273l-.51 2.154 1.32.33.545-2.19c2.24.427 3.93.257 4.64-1.774.57-1.637-.03-2.58-1.217-3.196.854-.193 1.5-.76 1.68-1.93h.01zm-3.01 4.22c-.404 1.64-3.157.75-4.05.53l.72-2.9c.896.23 3.757.67 3.33 2.37zm.41-4.24c-.37 1.49-2.662.735-3.405.55l.654-2.64c.744.18 3.137.524 2.75 2.084v.006z"/>
+            )}
+            {symbol === 'LTC' && (
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-.872 16.755l.522-2.178-2.075.52.377-1.582 2.075-.52 1.267-5.29h2.76l-1.144 4.773 2.462-.62-.377 1.582-2.462.62-.59 2.463H9.128z"/>
+            )}
+            {symbol === 'XMR' && (
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.853 17.316h-3.29l-3.563-5.488-3.563 5.488H4.147V6.684L12 14.537l7.853-7.853v10.632z"/>
+            )}
+            {symbol === 'DOGE' && (
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.853 10.447h-2.706v3.106h2.706v2.447H9.894v-2.447h1.259v-3.106H9.894V8h5.959v2.447z"/>
+            )}
+            {symbol === 'KAS' && (
+              <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.18L11 12.5v6.32L4 15.5V9.18zm16 0v6.32l-7 3.32V12.5l7-3.32z"/>
+            )}
+            {symbol === 'ETC' && (
+              <path d="M12 0l-8 13.74L12 24l8-10.26L12 0zm0 2.47l5.55 9.48L12 17.53 6.45 11.95 12 2.47zM4 14.95L12 22l8-7.05-8 4.58-8-4.58z"/>
+            )}
+          </svg>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
       {/* Header */}
       <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 md:py-6">
           <BackButton />
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                {coinData.coin}
-              </h1>
-              <p className="text-slate-400">{coinData.symbol}</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="flex items-center gap-4 md:gap-6">
+              {/* Coin Logo */}
+              {getCoinLogo(coinData.symbol)}
+
+              {/* Coin Info */}
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                  {coinData.coin}
+                </h1>
+                <p className="text-slate-400 text-lg">{coinData.symbol}</p>
+              </div>
             </div>
+
             <div className="text-left md:text-right">
               <div className="text-2xl md:text-3xl font-bold text-white">
                 ${coinData.currentPrice.toLocaleString('en-US', { maximumFractionDigits: 2 })}
@@ -215,21 +263,6 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
               {formatDifficulty(coinData.currentDifficulty)}
             </div>
             <div className="text-slate-500 text-xs md:text-sm">Network</div>
-          </div>
-
-          <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700 group relative">
-            <div className="text-slate-400 text-xs md:text-sm mb-2 flex items-center gap-1">
-              Last Updated
-              <svg className="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="hidden group-hover:block absolute z-10 w-64 p-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl text-xs text-slate-300 top-0 left-0 transform -translate-y-full mt-2">
-              {new Date(coinData.lastUpdated).toUTCString()}
-            </div>
-            <div className="text-xl md:text-2xl font-bold text-white">
-              {formatDistanceToNow(coinData.lastUpdated, { addSuffix: true }).replace('about ', '')}
-            </div>
           </div>
         </div>
 
