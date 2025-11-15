@@ -48,6 +48,9 @@ export default function CoinPage() {
       case 'BTC': return 'EH/s';
       case 'LTC': return 'TH/s';
       case 'XMR': return 'GH/s';
+      case 'DOGE': return 'TH/s';
+      case 'KAS': return 'TH/s';
+      case 'ETC': return 'TH/s';
       default: return 'H/s';
     }
   };
@@ -61,6 +64,21 @@ export default function CoinPage() {
     if (value > 0) return 'text-green-500';
     if (value < 0) return 'text-red-500';
     return 'text-gray-500';
+  };
+
+  const formatDifficulty = (value: number) => {
+    if (value >= 1e15) {
+      return `${(value / 1e15).toFixed(2)}P`; // Peta
+    } else if (value >= 1e12) {
+      return `${(value / 1e12).toFixed(2)}T`; // Tera
+    } else if (value >= 1e9) {
+      return `${(value / 1e9).toFixed(2)}G`; // Giga
+    } else if (value >= 1e6) {
+      return `${(value / 1e6).toFixed(2)}M`; // Mega
+    } else if (value >= 1e3) {
+      return `${(value / 1e3).toFixed(2)}K`; // Kilo
+    }
+    return value.toFixed(2);
   };
 
   if (loading) {
@@ -146,9 +164,9 @@ export default function CoinPage() {
           <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700">
             <div className="text-slate-400 text-xs md:text-sm mb-2">Difficulty</div>
             <div className="text-xl md:text-2xl font-bold text-white">
-              {coinData.currentDifficulty.toExponential(2)}
+              {formatDifficulty(coinData.currentDifficulty)}
             </div>
-            <div className="text-slate-500 text-xs md:text-sm">Current</div>
+            <div className="text-slate-500 text-xs md:text-sm">Network</div>
           </div>
 
           <div className="bg-slate-800/50 rounded-xl p-4 md:p-6 border border-slate-700">

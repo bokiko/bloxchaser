@@ -51,6 +51,21 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
     return '➡️';
   };
 
+  const formatDifficulty = (value: number) => {
+    if (value >= 1e15) {
+      return `${(value / 1e15).toFixed(2)}P`;
+    } else if (value >= 1e12) {
+      return `${(value / 1e12).toFixed(2)}T`;
+    } else if (value >= 1e9) {
+      return `${(value / 1e9).toFixed(2)}G`;
+    } else if (value >= 1e6) {
+      return `${(value / 1e6).toFixed(2)}M`;
+    } else if (value >= 1e3) {
+      return `${(value / 1e3).toFixed(2)}K`;
+    }
+    return value.toFixed(2);
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 border border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-300">
       {/* Header */}
@@ -91,7 +106,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
         <div>
           <div className="text-slate-400 text-sm mb-2">Difficulty</div>
           <div className="text-lg font-bold text-white">
-            {stats.currentDifficulty.toExponential(2)}
+            {formatDifficulty(stats.currentDifficulty)}
           </div>
         </div>
       </div>
