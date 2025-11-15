@@ -52,7 +52,12 @@ export default function HashrateChart({ stats }: HashrateChartProps) {
 
   return (
     <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 border border-slate-700 shadow-xl">
-      <h3 className="text-xl font-bold text-white mb-6">Hashrate History (180 Days)</h3>
+      <div className="flex items-start justify-between mb-6">
+        <h3 className="text-xl font-bold text-white">Hashrate History (90 Days)</h3>
+        <div className="text-xs text-slate-500 italic max-w-xs text-right">
+          * Historical data generated for demonstration purposes
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
