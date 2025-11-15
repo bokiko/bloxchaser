@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
+import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
@@ -10,10 +11,11 @@ export const revalidate = 3600; // Cache for 1 hour
 export async function GET() {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinMempoolData, dogecoinData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinMempoolData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(), // Bitcoin hashrate history from Mempool.space
       fetchDogecoinHashrate(), // Dogecoin from GetBlock RPC
-      fetchMinerstatCoins(),   // BTC, LTC, XMR, KAS, ETC from Minerstat (includes prices!)
+      fetchKaspaHashrate(),    // Kaspa from official Kaspa API
+      fetchMinerstatCoins(),   // BTC, LTC, XMR, ETC from Minerstat (includes prices!)
       fetchCryptoPrices(),     // Prices from CoinGecko (backup for 24h change and market cap)
     ]);
 
@@ -21,7 +23,6 @@ export async function GET() {
     const bitcoinMinerstatData = minerstatCoins.get('BTC');
     const litecoinData = minerstatCoins.get('LTC');
     const moneroData = minerstatCoins.get('XMR');
-    const kaspaData = minerstatCoins.get('KAS');
     const ethereumClassicData = minerstatCoins.get('ETC');
 
     // For Bitcoin: Use Mempool hashrate history + Minerstat price/difficulty
@@ -53,11 +54,13 @@ export async function GET() {
       marketCap: prices.dogecoin.marketCap || 0,
     };
 
-    const kaspaWithPrice = kaspaData ? {
+    // For Kaspa: Use official Kaspa API + Minerstat for price
+    const kaspaWithPrice = {
       ...kaspaData,
+      currentPrice: prices.kaspa.price || 0,
       priceChange24h: prices.kaspa.change24h || 0,
       marketCap: prices.kaspa.marketCap || 0,
-    } : null;
+    };
 
     const ethereumClassicWithPrice = ethereumClassicData ? {
       ...ethereumClassicData,

@@ -2,6 +2,7 @@ import { NetworkStats } from '@/types';
 import NetworkCard from '@/components/NetworkCard';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
+import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
@@ -11,25 +12,27 @@ export const revalidate = 3600;
 async function getNetworkData(): Promise<NetworkStats[]> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, dogecoinData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchDogecoinHashrate(),
+      fetchKaspaHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
 
-    // Get coins from Minerstat
+    // Get coins from Minerstat (BTC for price/difficulty, LTC, XMR, ETC)
+    const bitcoinMinerstatData = minerstatCoins.get('BTC');
     const litecoinData = minerstatCoins.get('LTC');
     const moneroData = minerstatCoins.get('XMR');
-    const kaspaData = minerstatCoins.get('KAS');
     const ethereumClassicData = minerstatCoins.get('ETC');
 
     // Merge price data with network stats
     const bitcoinWithPrice = {
       ...bitcoinData,
-      currentPrice: prices.bitcoin.price,
-      priceChange24h: prices.bitcoin.change24h,
-      marketCap: prices.bitcoin.marketCap,
+      currentPrice: bitcoinMinerstatData?.currentPrice || prices.bitcoin.price || 0,
+      currentDifficulty: bitcoinMinerstatData?.currentDifficulty || bitcoinData.currentDifficulty,
+      priceChange24h: prices.bitcoin.change24h || 0,
+      marketCap: prices.bitcoin.marketCap || 0,
     };
 
     const litecoinWithPrice = litecoinData ? {
@@ -46,16 +49,17 @@ async function getNetworkData(): Promise<NetworkStats[]> {
 
     const dogecoinWithPrice = {
       ...dogecoinData,
-      currentPrice: prices.dogecoin.price,
-      priceChange24h: prices.dogecoin.change24h,
-      marketCap: prices.dogecoin.marketCap,
+      currentPrice: prices.dogecoin.price || 0,
+      priceChange24h: prices.dogecoin.change24h || 0,
+      marketCap: prices.dogecoin.marketCap || 0,
     };
 
-    const kaspaWithPrice = kaspaData ? {
+    const kaspaWithPrice = {
       ...kaspaData,
-      priceChange24h: prices.kaspa.change24h,
-      marketCap: prices.kaspa.marketCap,
-    } : null;
+      currentPrice: prices.kaspa.price || 0,
+      priceChange24h: prices.kaspa.change24h || 0,
+      marketCap: prices.kaspa.marketCap || 0,
+    };
 
     const ethereumClassicWithPrice = ethereumClassicData ? {
       ...ethereumClassicData,

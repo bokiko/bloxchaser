@@ -4,6 +4,7 @@ import HashrateChart from '@/components/HashrateChart';
 import { formatDistanceToNow } from 'date-fns';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
+import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 import BackButton from '@/components/BackButton';
@@ -26,9 +27,10 @@ export async function generateStaticParams() {
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, dogecoinData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchDogecoinHashrate(),
+      fetchKaspaHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
@@ -52,6 +54,13 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         priceChange24h: prices.dogecoin.change24h || 0,
         marketCap: prices.dogecoin.marketCap || 0,
       };
+    } else if (symbolUpper === 'KAS') {
+      return {
+        ...kaspaData,
+        currentPrice: prices.kaspa.price || 0,
+        priceChange24h: prices.kaspa.change24h || 0,
+        marketCap: prices.kaspa.marketCap || 0,
+      };
     } else if (symbolUpper === 'LTC') {
       const ltcData = minerstatCoins.get('LTC');
       return ltcData ? {
@@ -65,13 +74,6 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         ...xmrData,
         priceChange24h: prices.monero.change24h || 0,
         marketCap: prices.monero.marketCap || 0,
-      } : null;
-    } else if (symbolUpper === 'KAS') {
-      const kasData = minerstatCoins.get('KAS');
-      return kasData ? {
-        ...kasData,
-        priceChange24h: prices.kaspa.change24h || 0,
-        marketCap: prices.kaspa.marketCap || 0,
       } : null;
     } else if (symbolUpper === 'ETC') {
       const etcData = minerstatCoins.get('ETC');
@@ -104,7 +106,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       case 'LTC': return 'TH/s';
       case 'XMR': return 'GH/s';
       case 'DOGE': return 'TH/s';
-      case 'KAS': return 'EH/s'; // Kaspa has massive hashrate
+      case 'KAS': return 'PH/s'; // Petahashes
       case 'ETC': return 'TH/s';
       default: return 'H/s';
     }

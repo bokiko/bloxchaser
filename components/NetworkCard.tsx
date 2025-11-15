@@ -20,7 +20,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       case 'DOGE':
         return 'TH/s'; // Terahashes (merged mining with LTC)
       case 'KAS':
-        return 'EH/s'; // Exahashes (Kaspa has massive hashrate)
+        return 'PH/s'; // Petahashes (~630 PH/s)
       case 'ETC':
         return 'TH/s'; // Terahashes
       default:

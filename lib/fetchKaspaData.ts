@@ -1,13 +1,16 @@
+import axios from 'axios';
 import { HashrateData, NetworkStats } from '@/types';
+
+const KASPA_API = 'https://api.kaspa.org';
 
 export async function fetchKaspaHashrate(): Promise<NetworkStats> {
   try {
-    // Kaspa network stats - using estimated current values
-    // Kaspa has been growing rapidly, current hashrate around 300-400 PH/s
+    // Fetch current hashrate from official Kaspa API (returns PH/s)
+    const hashrateResponse = await axios.get(`${KASPA_API}/info/hashrate`);
+    const currentHashrate = hashrateResponse.data.hashrate; // PH/s
 
     const now = Date.now();
-    const currentHashrate = 350000; // TH/s (350 PH/s) - Kaspa is huge!
-    const currentDifficulty = 580000000000;
+    const currentDifficulty = 63203373835535000; // Will be updated if needed
 
     // Generate 90 days of historical data with explosive growth (Kaspa is trending!)
     const historicalData: HashrateData[] = [];

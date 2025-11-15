@@ -49,7 +49,7 @@ function generateHistoricalData(currentHashrate: number, currentDifficulty: numb
 export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> {
   try {
     const response = await axios.get<MinerstatCoin[]>(
-      `${MINERSTAT_API}?list=BTC,LTC,XMR,KAS,ETC`
+      `${MINERSTAT_API}?list=BTC,LTC,XMR,ETC`
     );
 
     const coinsMap = new Map<string, NetworkStats>();
@@ -89,7 +89,6 @@ export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> 
         BTC: { name: 'Bitcoin', symbol: 'BTC' },
         LTC: { name: 'Litecoin', symbol: 'LTC' },
         XMR: { name: 'Monero', symbol: 'XMR' },
-        KAS: { name: 'Kaspa', symbol: 'KAS' },
         ETC: { name: 'Ethereum Classic', symbol: 'ETC' },
       };
 
@@ -105,9 +104,6 @@ export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> 
         displayHashrate = coin.network_hashrate / conversionFactor;
       } else if (coin.coin === 'XMR') {
         conversionFactor = 1e9; // Convert H/s to GH/s
-        displayHashrate = coin.network_hashrate / conversionFactor;
-      } else if (coin.coin === 'KAS') {
-        conversionFactor = 1e18; // Convert H/s to EH/s (Kaspa has massive hashrate)
         displayHashrate = coin.network_hashrate / conversionFactor;
       } else if (coin.coin === 'ETC') {
         conversionFactor = 1e12; // Convert H/s to TH/s
