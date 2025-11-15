@@ -107,10 +107,13 @@ export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> 
         conversionFactor = 1e9; // Convert H/s to GH/s
         displayHashrate = coin.network_hashrate / conversionFactor;
       } else if (coin.coin === 'KAS') {
-        conversionFactor = 1e24; // Convert H/s to TH/s (Kaspa uses very large numbers)
+        conversionFactor = 1e18; // Convert H/s to EH/s (Kaspa has massive hashrate)
         displayHashrate = coin.network_hashrate / conversionFactor;
       } else if (coin.coin === 'ETC') {
         conversionFactor = 1e12; // Convert H/s to TH/s
+        displayHashrate = coin.network_hashrate / conversionFactor;
+      } else if (coin.coin === 'BTC') {
+        conversionFactor = 1e18; // Convert H/s to EH/s
         displayHashrate = coin.network_hashrate / conversionFactor;
       }
 
@@ -121,6 +124,8 @@ export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> 
         difficulty: point.difficulty,
       }));
 
+      // Estimate market cap (this is approximate - proper way would be price * circulating supply)
+      // For now we'll use volume as a proxy or leave it to be filled by CoinGecko
       const networkStats: NetworkStats = {
         coin: coinInfo.name,
         symbol: coinInfo.symbol,
@@ -131,9 +136,9 @@ export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> 
         change90d,
         lastUpdated: coin.updated * 1000, // Convert to milliseconds
         historicalData: convertedHistoricalData,
-        currentPrice: coin.price,
-        priceChange24h: 0, // Minerstat doesn't provide 24h change
-        marketCap: 0, // Minerstat doesn't provide market cap
+        currentPrice: coin.price, // Use Minerstat price
+        priceChange24h: 0, // Will be filled by CoinGecko if available
+        marketCap: 0, // Will be filled by CoinGecko if available
       };
 
       coinsMap.set(coin.coin, networkStats);

@@ -37,46 +37,48 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
 
     // Build the coin data based on symbol
     if (symbolUpper === 'BTC') {
+      const bitcoinMinerstatData = minerstatCoins.get('BTC');
       return {
         ...bitcoinData,
-        currentPrice: prices.bitcoin.price,
-        priceChange24h: prices.bitcoin.change24h,
-        marketCap: prices.bitcoin.marketCap,
+        currentPrice: bitcoinMinerstatData?.currentPrice || prices.bitcoin.price || 0,
+        currentDifficulty: bitcoinMinerstatData?.currentDifficulty || bitcoinData.currentDifficulty,
+        priceChange24h: prices.bitcoin.change24h || 0,
+        marketCap: prices.bitcoin.marketCap || 0,
       };
     } else if (symbolUpper === 'DOGE') {
       return {
         ...dogecoinData,
-        currentPrice: prices.dogecoin.price,
-        priceChange24h: prices.dogecoin.change24h,
-        marketCap: prices.dogecoin.marketCap,
+        currentPrice: prices.dogecoin.price || 0,
+        priceChange24h: prices.dogecoin.change24h || 0,
+        marketCap: prices.dogecoin.marketCap || 0,
       };
     } else if (symbolUpper === 'LTC') {
       const ltcData = minerstatCoins.get('LTC');
       return ltcData ? {
         ...ltcData,
-        priceChange24h: prices.litecoin.change24h,
-        marketCap: prices.litecoin.marketCap,
+        priceChange24h: prices.litecoin.change24h || 0,
+        marketCap: prices.litecoin.marketCap || 0,
       } : null;
     } else if (symbolUpper === 'XMR') {
       const xmrData = minerstatCoins.get('XMR');
       return xmrData ? {
         ...xmrData,
-        priceChange24h: prices.monero.change24h,
-        marketCap: prices.monero.marketCap,
+        priceChange24h: prices.monero.change24h || 0,
+        marketCap: prices.monero.marketCap || 0,
       } : null;
     } else if (symbolUpper === 'KAS') {
       const kasData = minerstatCoins.get('KAS');
       return kasData ? {
         ...kasData,
-        priceChange24h: prices.kaspa.change24h,
-        marketCap: prices.kaspa.marketCap,
+        priceChange24h: prices.kaspa.change24h || 0,
+        marketCap: prices.kaspa.marketCap || 0,
       } : null;
     } else if (symbolUpper === 'ETC') {
       const etcData = minerstatCoins.get('ETC');
       return etcData ? {
         ...etcData,
-        priceChange24h: prices.ethereumClassic.change24h,
-        marketCap: prices.ethereumClassic.marketCap,
+        priceChange24h: prices.ethereumClassic.change24h || 0,
+        marketCap: prices.ethereumClassic.marketCap || 0,
       } : null;
     }
 
@@ -102,7 +104,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       case 'LTC': return 'TH/s';
       case 'XMR': return 'GH/s';
       case 'DOGE': return 'TH/s';
-      case 'KAS': return 'TH/s';
+      case 'KAS': return 'EH/s'; // Kaspa has massive hashrate
       case 'ETC': return 'TH/s';
       default: return 'H/s';
     }

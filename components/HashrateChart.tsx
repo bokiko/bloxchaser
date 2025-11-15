@@ -20,7 +20,7 @@ export default function HashrateChart({ stats }: HashrateChartProps) {
       case 'DOGE':
         return 'TH/s';
       case 'KAS':
-        return 'TH/s';
+        return 'EH/s'; // Kaspa has massive hashrate
       case 'ETC':
         return 'TH/s';
       default:
