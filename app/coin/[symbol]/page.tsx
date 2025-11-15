@@ -3,6 +3,7 @@ import { NetworkStats } from '@/types';
 import HashrateChart from '@/components/HashrateChart';
 import { formatDistanceToNow } from 'date-fns';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
+import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
 import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
@@ -27,8 +28,9 @@ export async function generateStaticParams() {
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
+      fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
       fetchKaspaHashrate(),
       fetchMinerstatCoins(),
@@ -47,6 +49,15 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         priceChange24h: prices.bitcoin.change24h || 0,
         marketCap: prices.bitcoin.marketCap || 0,
       };
+    } else if (symbolUpper === 'LTC') {
+      const litecoinMinerstatData = minerstatCoins.get('LTC');
+      return {
+        ...litecoinData,
+        currentPrice: litecoinMinerstatData?.currentPrice || prices.litecoin.price || 0,
+        currentDifficulty: litecoinMinerstatData?.currentDifficulty || litecoinData.currentDifficulty,
+        priceChange24h: prices.litecoin.change24h || 0,
+        marketCap: prices.litecoin.marketCap || 0,
+      };
     } else if (symbolUpper === 'DOGE') {
       return {
         ...dogecoinData,
@@ -61,13 +72,6 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         priceChange24h: prices.kaspa.change24h || 0,
         marketCap: prices.kaspa.marketCap || 0,
       };
-    } else if (symbolUpper === 'LTC') {
-      const ltcData = minerstatCoins.get('LTC');
-      return ltcData ? {
-        ...ltcData,
-        priceChange24h: prices.litecoin.change24h || 0,
-        marketCap: prices.litecoin.marketCap || 0,
-      } : null;
     } else if (symbolUpper === 'XMR') {
       const xmrData = minerstatCoins.get('XMR');
       return xmrData ? {

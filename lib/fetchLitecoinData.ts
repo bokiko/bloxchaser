@@ -1,48 +1,52 @@
 import axios from 'axios';
 import { HashrateData, NetworkStats } from '@/types';
 
-// For Litecoin, we'll use estimated data based on network stats
-// In production, you could use litecoinpool.org API or similar
+const LITECOINSPACE_API = 'https://litecoinspace.org/api/v1';
 
 export async function fetchLitecoinHashrate(): Promise<NetworkStats> {
   try {
-    // Litecoin network stats - using estimated current values
-    // Current LTC hashrate is around 1.5 PH/s (petahashes)
+    // Fetch hashrate data for 3 months from Litecoinspace (official Litecoin block explorer)
+    const hashrateResponse = await axios.get(`${LITECOINSPACE_API}/mining/hashrate/3m`);
 
-    const now = Date.now();
-    const currentHashrate = 1500; // TH/s (1.5 PH/s)
-    const currentDifficulty = 45000000;
+    const hashrateData = hashrateResponse.data;
 
-    // Generate 90 days of historical data with realistic trends
-    const historicalData: HashrateData[] = [];
-    for (let i = 90; i >= 0; i--) {
-      const timestamp = now - (i * 24 * 60 * 60 * 1000);
-      // Simulate gradual growth with some variance
-      const growthFactor = 0.90 + ((90 - i) / 90) * 0.15; // 10% growth over 90 days
-      const variance = 0.90 + (Math.random() * 0.2); // ±10% daily variance
-      const hashrate = currentHashrate * growthFactor * variance;
-
-      historicalData.push({
-        timestamp,
-        hashrate,
-        difficulty: currentDifficulty * growthFactor * variance,
-      });
+    // Check if we have hashrate data
+    if (!hashrateData || !hashrateData.hashrates || hashrateData.hashrates.length === 0) {
+      throw new Error('No hashrate data received from Litecoinspace API');
     }
 
-    const current = historicalData[historicalData.length - 1];
-    const sevenDaysAgo = historicalData[historicalData.length - 7];
-    const thirtyDaysAgo = historicalData[historicalData.length - 30];
-    const ninetyDaysAgo = historicalData[0];
+    // Get current difficulty - using a reasonable estimate
+    // Litecoinspace might have this endpoint, or we can get from Minerstat
+    const currentDifficulty = 118363910.7402615; // We'll update this from actual data
 
-    const change7d = ((current.hashrate - sevenDaysAgo.hashrate) / sevenDaysAgo.hashrate) * 100;
-    const change30d = ((current.hashrate - thirtyDaysAgo.hashrate) / thirtyDaysAgo.hashrate) * 100;
-    const change90d = ((current.hashrate - ninetyDaysAgo.hashrate) / ninetyDaysAgo.hashrate) * 100;
+    // Convert to our format (convert H/s to TH/s: divide by 1e12)
+    const historicalData: HashrateData[] = hashrateData.hashrates.map((point: any) => ({
+      timestamp: point.timestamp * 1000, // Convert to milliseconds
+      hashrate: point.avgHashrate / 1e12, // Convert H/s to TH/s
+      difficulty: currentDifficulty,
+    }));
+
+    // Calculate current values and changes
+    const current = historicalData[historicalData.length - 1];
+    const sevenDaysAgo = historicalData[Math.max(0, historicalData.length - 7)];
+    const thirtyDaysAgo = historicalData[Math.max(0, historicalData.length - 30)];
+    const ninetyDaysAgo = historicalData[Math.max(0, historicalData.length - 90)];
+
+    const change7d = sevenDaysAgo && current.hashrate !== sevenDaysAgo.hashrate
+      ? ((current.hashrate - sevenDaysAgo.hashrate) / sevenDaysAgo.hashrate) * 100
+      : 0;
+    const change30d = thirtyDaysAgo && current.hashrate !== thirtyDaysAgo.hashrate
+      ? ((current.hashrate - thirtyDaysAgo.hashrate) / thirtyDaysAgo.hashrate) * 100
+      : 0;
+    const change90d = ninetyDaysAgo && current.hashrate !== ninetyDaysAgo.hashrate
+      ? ((current.hashrate - ninetyDaysAgo.hashrate) / ninetyDaysAgo.hashrate) * 100
+      : 0;
 
     return {
       coin: 'Litecoin',
       symbol: 'LTC',
       currentHashrate: current.hashrate,
-      currentDifficulty: current.difficulty,
+      currentDifficulty,
       change7d,
       change30d,
       change90d,
@@ -54,6 +58,11 @@ export async function fetchLitecoinHashrate(): Promise<NetworkStats> {
     };
   } catch (error) {
     console.error('Error fetching Litecoin data:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('API Response:', error.response?.data);
+      console.error('API Status:', error.response?.status);
+      console.error('API URL:', error.config?.url);
+    }
     throw new Error('Failed to fetch Litecoin hashrate data');
   }
 }

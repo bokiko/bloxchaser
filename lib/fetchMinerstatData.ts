@@ -48,6 +48,7 @@ function generateHistoricalData(currentHashrate: number, currentDifficulty: numb
 
 export async function fetchMinerstatCoins(): Promise<Map<string, NetworkStats>> {
   try {
+    // Note: Still fetching LTC for price/difficulty data even though we use Litecoinspace for hashrate
     const response = await axios.get<MinerstatCoin[]>(
       `${MINERSTAT_API}?list=BTC,LTC,XMR,ETC`
     );

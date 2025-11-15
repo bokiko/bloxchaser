@@ -1,6 +1,7 @@
 import { NetworkStats } from '@/types';
 import NetworkCard from '@/components/NetworkCard';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
+import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
 import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
@@ -12,17 +13,18 @@ export const revalidate = 3600;
 async function getNetworkData(): Promise<NetworkStats[]> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
+      fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
       fetchKaspaHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
 
-    // Get coins from Minerstat (BTC for price/difficulty, LTC, XMR, ETC)
+    // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR, ETC)
     const bitcoinMinerstatData = minerstatCoins.get('BTC');
-    const litecoinData = minerstatCoins.get('LTC');
+    const litecoinMinerstatData = minerstatCoins.get('LTC');
     const moneroData = minerstatCoins.get('XMR');
     const ethereumClassicData = minerstatCoins.get('ETC');
 
@@ -35,11 +37,13 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       marketCap: prices.bitcoin.marketCap || 0,
     };
 
-    const litecoinWithPrice = litecoinData ? {
+    const litecoinWithPrice = {
       ...litecoinData,
-      priceChange24h: prices.litecoin.change24h,
-      marketCap: prices.litecoin.marketCap,
-    } : null;
+      currentPrice: litecoinMinerstatData?.currentPrice || prices.litecoin.price || 0,
+      currentDifficulty: litecoinMinerstatData?.currentDifficulty || litecoinData.currentDifficulty,
+      priceChange24h: prices.litecoin.change24h || 0,
+      marketCap: prices.litecoin.marketCap || 0,
+    };
 
     const moneroWithPrice = moneroData ? {
       ...moneroData,
