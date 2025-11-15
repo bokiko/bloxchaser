@@ -1,29 +1,48 @@
+import axios from 'axios';
 import { HashrateData, NetworkStats } from '@/types';
+
+const GETBLOCK_RPC = 'https://go.getblock.io/3c7c28e711814d728754a606a1947ce3';
+
+// Generate realistic 90 days of historical data based on current values
+function generateHistoricalData(currentHashrate: number, currentDifficulty: number) {
+  const now = Date.now();
+  const historicalData: HashrateData[] = [];
+
+  for (let i = 90; i >= 0; i--) {
+    const timestamp = now - (i * 24 * 60 * 60 * 1000);
+    // Simulate steady growth with variance
+    const growthFactor = 0.92 + ((90 - i) / 90) * 0.12; // 12% growth over 90 days
+    const variance = 0.88 + (Math.random() * 0.24); // ±12% daily variance
+    const hashrate = currentHashrate * growthFactor * variance;
+
+    historicalData.push({
+      timestamp,
+      hashrate,
+      difficulty: currentDifficulty * growthFactor * variance,
+    });
+  }
+
+  return historicalData;
+}
 
 export async function fetchDogecoinHashrate(): Promise<NetworkStats> {
   try {
-    // Dogecoin network stats - using estimated current values
-    // Current DOGE hashrate is around 1.5 PH/s (similar to Litecoin as it merged mines)
+    // Fetch real data from Dogecoin RPC via GetBlock
+    const response = await axios.post(GETBLOCK_RPC, {
+      jsonrpc: '2.0',
+      method: 'getmininginfo',
+      params: [],
+      id: 1,
+    });
 
-    const now = Date.now();
-    const currentHashrate = 1400; // TH/s (1.4 PH/s)
-    const currentDifficulty = 28000000;
+    const miningInfo = response.data.result;
 
-    // Generate 90 days of historical data with realistic trends
-    const historicalData: HashrateData[] = [];
-    for (let i = 90; i >= 0; i--) {
-      const timestamp = now - (i * 24 * 60 * 60 * 1000);
-      // Simulate steady growth with variance
-      const growthFactor = 0.92 + ((90 - i) / 90) * 0.12; // 12% growth over 90 days
-      const variance = 0.88 + (Math.random() * 0.24); // ±12% daily variance
-      const hashrate = currentHashrate * growthFactor * variance;
+    // Convert hashrate from H/s to TH/s
+    const currentHashrate = miningInfo.networkhashps / 1e12; // Convert to TH/s
+    const currentDifficulty = miningInfo.difficulty;
 
-      historicalData.push({
-        timestamp,
-        hashrate,
-        difficulty: currentDifficulty * growthFactor * variance,
-      });
-    }
+    // Generate 90 days of historical data
+    const historicalData = generateHistoricalData(currentHashrate, currentDifficulty);
 
     const current = historicalData[historicalData.length - 1];
     const sevenDaysAgo = historicalData[historicalData.length - 7];

@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
-import { fetchMoneroHashrate } from '@/lib/fetchMoneroData';
-import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
-import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
-import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
+import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
 export const dynamic = 'force-dynamic';
@@ -12,18 +9,21 @@ export const revalidate = 3600; // Cache for 1 hour
 
 export async function GET() {
   try {
-    // Fetch all coin data and prices in parallel for better performance
-    const [bitcoinData, moneroData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, prices] = await Promise.all([
-      fetchBitcoinHashrate(),
-      fetchMoneroHashrate(),
-      fetchLitecoinHashrate(),
-      fetchDogecoinHashrate(),
-      fetchKaspaHashrate(),
-      fetchEthereumClassicHashrate(),
-      fetchCryptoPrices(),
+    // Fetch all data sources in parallel
+    const [bitcoinData, dogecoinData, minerstatCoins, prices] = await Promise.all([
+      fetchBitcoinHashrate(), // Bitcoin from Mempool.space
+      fetchDogecoinHashrate(), // Dogecoin from GetBlock RPC
+      fetchMinerstatCoins(),   // LTC, XMR, KAS, ETC from Minerstat
+      fetchCryptoPrices(),     // Prices from CoinGecko (for 24h change and market cap)
     ]);
 
-    // Merge price data with network stats
+    // Get coins from Minerstat
+    const litecoinData = minerstatCoins.get('LTC');
+    const moneroData = minerstatCoins.get('XMR');
+    const kaspaData = minerstatCoins.get('KAS');
+    const ethereumClassicData = minerstatCoins.get('ETC');
+
+    // Merge CoinGecko price data (for 24h change and market cap) with network stats
     const bitcoinWithPrice = {
       ...bitcoinData,
       currentPrice: prices.bitcoin.price,
@@ -31,19 +31,17 @@ export async function GET() {
       marketCap: prices.bitcoin.marketCap,
     };
 
-    const litecoinWithPrice = {
+    const litecoinWithPrice = litecoinData ? {
       ...litecoinData,
-      currentPrice: prices.litecoin.price,
       priceChange24h: prices.litecoin.change24h,
       marketCap: prices.litecoin.marketCap,
-    };
+    } : null;
 
-    const moneroWithPrice = {
+    const moneroWithPrice = moneroData ? {
       ...moneroData,
-      currentPrice: prices.monero.price,
       priceChange24h: prices.monero.change24h,
       marketCap: prices.monero.marketCap,
-    };
+    } : null;
 
     const dogecoinWithPrice = {
       ...dogecoinData,
@@ -52,23 +50,31 @@ export async function GET() {
       marketCap: prices.dogecoin.marketCap,
     };
 
-    const kaspaWithPrice = {
+    const kaspaWithPrice = kaspaData ? {
       ...kaspaData,
-      currentPrice: prices.kaspa.price,
       priceChange24h: prices.kaspa.change24h,
       marketCap: prices.kaspa.marketCap,
-    };
+    } : null;
 
-    const ethereumClassicWithPrice = {
+    const ethereumClassicWithPrice = ethereumClassicData ? {
       ...ethereumClassicData,
-      currentPrice: prices.ethereumClassic.price,
       priceChange24h: prices.ethereumClassic.change24h,
       marketCap: prices.ethereumClassic.marketCap,
-    };
+    } : null;
+
+    // Filter out null values and return data
+    const data = [
+      bitcoinWithPrice,
+      litecoinWithPrice,
+      moneroWithPrice,
+      dogecoinWithPrice,
+      kaspaWithPrice,
+      ethereumClassicWithPrice,
+    ].filter(coin => coin !== null);
 
     return NextResponse.json({
       success: true,
-      data: [bitcoinWithPrice, litecoinWithPrice, moneroWithPrice, dogecoinWithPrice, kaspaWithPrice, ethereumClassicWithPrice], // Order: BTC, LTC, XMR, DOGE, KAS, ETC
+      data,
       timestamp: Date.now(),
     });
   } catch (error) {
