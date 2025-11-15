@@ -52,7 +52,14 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
           <h2 className="text-3xl font-bold text-white">{stats.coin}</h2>
           <p className="text-slate-400 text-sm mt-1">{stats.symbol}</p>
         </div>
-        <div className="text-4xl">{getChangeEmoji(stats.change7d)}</div>
+        <div className="text-right">
+          <div className="text-2xl font-bold text-white">
+            ${stats.currentPrice.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+          </div>
+          <div className={`text-sm font-semibold ${getChangeColor(stats.priceChange24h)}`}>
+            {formatChange(stats.priceChange24h)} 24h
+          </div>
+        </div>
       </div>
 
       {/* Current Stats */}
@@ -66,11 +73,19 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
         </div>
       </div>
 
-      {/* Difficulty */}
-      <div className="mb-6 pb-6 border-b border-slate-700">
-        <div className="text-slate-400 text-sm mb-2">Difficulty</div>
-        <div className="text-xl font-bold text-white">
-          {stats.currentDifficulty.toExponential(2)}
+      {/* Price & Market Cap Row */}
+      <div className="mb-6 pb-6 border-b border-slate-700 grid grid-cols-2 gap-4">
+        <div>
+          <div className="text-slate-400 text-sm mb-2">Market Cap</div>
+          <div className="text-lg font-bold text-white">
+            ${(stats.marketCap / 1e9).toFixed(2)}B
+          </div>
+        </div>
+        <div>
+          <div className="text-slate-400 text-sm mb-2">Difficulty</div>
+          <div className="text-lg font-bold text-white">
+            {stats.currentDifficulty.toExponential(2)}
+          </div>
         </div>
       </div>
 

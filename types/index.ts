@@ -14,6 +14,10 @@ export interface NetworkStats {
   change90d: number;
   lastUpdated: number;
   historicalData: HashrateData[];
+  // Price data
+  currentPrice: number;
+  priceChange24h: number;
+  marketCap: number;
 }
 
 export interface CoinConfig {

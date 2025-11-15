@@ -2,22 +2,46 @@ import { NextResponse } from 'next/server';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchMoneroHashrate } from '@/lib/fetchMoneroData';
 import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
+import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Cache for 1 hour
 
 export async function GET() {
   try {
-    // Fetch all coin data in parallel for better performance
-    const [bitcoinData, moneroData, litecoinData] = await Promise.all([
+    // Fetch all coin data and prices in parallel for better performance
+    const [bitcoinData, moneroData, litecoinData, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchMoneroHashrate(),
       fetchLitecoinHashrate(),
+      fetchCryptoPrices(),
     ]);
+
+    // Merge price data with network stats
+    const bitcoinWithPrice = {
+      ...bitcoinData,
+      currentPrice: prices.bitcoin.price,
+      priceChange24h: prices.bitcoin.change24h,
+      marketCap: prices.bitcoin.marketCap,
+    };
+
+    const litecoinWithPrice = {
+      ...litecoinData,
+      currentPrice: prices.litecoin.price,
+      priceChange24h: prices.litecoin.change24h,
+      marketCap: prices.litecoin.marketCap,
+    };
+
+    const moneroWithPrice = {
+      ...moneroData,
+      currentPrice: prices.monero.price,
+      priceChange24h: prices.monero.change24h,
+      marketCap: prices.monero.marketCap,
+    };
 
     return NextResponse.json({
       success: true,
-      data: [bitcoinData, litecoinData, moneroData], // Order: BTC, LTC, XMR
+      data: [bitcoinWithPrice, litecoinWithPrice, moneroWithPrice], // Order: BTC, LTC, XMR
       timestamp: Date.now(),
     });
   } catch (error) {
