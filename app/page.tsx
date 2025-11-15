@@ -88,7 +88,7 @@ export default async function Home() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold text-white mb-2">
-                BloxChaser
+                bloxchaser
               </h1>
               <p className="text-slate-400">
                 Real-Time Mining Network Analytics

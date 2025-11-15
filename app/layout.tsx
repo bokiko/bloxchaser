@@ -13,28 +13,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BloxChaser - Real-Time Mining Network Analytics",
+  title: "bloxchaser - Real-Time Mining Network Analytics",
   description: "Track hashrate trends, difficulty adjustments, and network health for top mineable cryptocurrencies including Bitcoin, Litecoin, Monero, Dogecoin, Kaspa, and Ethereum Classic.",
   keywords: ["crypto mining", "hashrate", "network difficulty", "mining analytics", "bitcoin hashrate", "cryptocurrency mining"],
-  authors: [{ name: "BloxChaser" }],
+  authors: [{ name: "bloxchaser" }],
   openGraph: {
-    title: "BloxChaser - Real-Time Mining Network Analytics",
+    title: "bloxchaser - Real-Time Mining Network Analytics",
     description: "Track hashrate trends, difficulty adjustments, and network health for top mineable cryptocurrencies.",
     url: "https://bloxchaser.com",
-    siteName: "BloxChaser",
+    siteName: "bloxchaser",
     type: "website",
     images: [
       {
         url: "/og-image.png", // You can create this later
         width: 1200,
         height: 630,
-        alt: "BloxChaser - Mining Network Analytics Dashboard",
+        alt: "bloxchaser - Mining Network Analytics Dashboard",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BloxChaser - Real-Time Mining Network Analytics",
+    title: "bloxchaser - Real-Time Mining Network Analytics",
     description: "Track hashrate trends, difficulty adjustments, and network health for top mineable cryptocurrencies.",
     images: ["/og-image.png"],
   },

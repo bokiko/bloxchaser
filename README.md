@@ -1,8 +1,8 @@
-# BloxChaser
+# bloxchaser
 
 **Real-Time Mining Network Analytics**
 
-BloxChaser is a comprehensive mining network analytics dashboard that tracks hashrate trends, difficulty adjustments, network health, and price data for top mineable cryptocurrencies.
+bloxchaser is a comprehensive mining network analytics dashboard that tracks hashrate trends, difficulty adjustments, network health, and price data for top mineable cryptocurrencies.
 
 ## Features
 
@@ -151,7 +151,7 @@ All APIs are used responsibly with appropriate caching to minimize requests.
 ## Architecture & Performance
 
 ### Server-Side Rendering (SSR)
-BloxChaser uses Next.js 15 Server Components for optimal performance and SEO:
+bloxchaser uses Next.js 15 Server Components for optimal performance and SEO:
 
 - **Full HTML on first load**: Crawlers and users see complete content immediately
 - **No loading states for bots**: SEO-friendly, perfect for Google, social media previews
