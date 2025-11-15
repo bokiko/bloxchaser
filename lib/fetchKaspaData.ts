@@ -5,9 +5,9 @@ const KASPA_API = 'https://api.kaspa.org';
 
 export async function fetchKaspaHashrate(): Promise<NetworkStats> {
   try {
-    // Fetch current hashrate from official Kaspa API (returns PH/s)
+    // Fetch current hashrate from official Kaspa API (returns TH/s, we convert to PH/s)
     const hashrateResponse = await axios.get(`${KASPA_API}/info/hashrate`);
-    const currentHashrate = hashrateResponse.data.hashrate; // PH/s
+    const currentHashrate = hashrateResponse.data.hashrate / 1000; // Convert TH/s to PH/s
 
     const now = Date.now();
     const currentDifficulty = 63203373835535000; // Will be updated if needed
