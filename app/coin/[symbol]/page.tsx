@@ -1,47 +1,100 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { NetworkStats } from '@/types';
 import HashrateChart from '@/components/HashrateChart';
 import { formatDistanceToNow } from 'date-fns';
+import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
+import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
+import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
+import { fetchCryptoPrices } from '@/lib/fetchPrices';
+import BackButton from '@/components/BackButton';
 
-export default function CoinPage() {
-  const params = useParams();
-  const router = useRouter();
-  const symbol = (params.symbol as string).toUpperCase();
+// Revalidate every hour (3600 seconds)
+export const revalidate = 3600;
 
-  const [coinData, setCoinData] = useState<NetworkStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// Generate static params for all supported coins
+export async function generateStaticParams() {
+  return [
+    { symbol: 'btc' },
+    { symbol: 'ltc' },
+    { symbol: 'xmr' },
+    { symbol: 'doge' },
+    { symbol: 'kas' },
+    { symbol: 'etc' },
+  ];
+}
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/hashrate');
-        const result = await response.json();
+async function getCoinData(symbol: string): Promise<NetworkStats | null> {
+  try {
+    // Fetch all data sources in parallel
+    const [bitcoinData, dogecoinData, minerstatCoins, prices] = await Promise.all([
+      fetchBitcoinHashrate(),
+      fetchDogecoinHashrate(),
+      fetchMinerstatCoins(),
+      fetchCryptoPrices(),
+    ]);
 
-        if (result.success) {
-          const coin = result.data.find((c: NetworkStats) => c.symbol === symbol);
-          if (coin) {
-            setCoinData(coin);
-          } else {
-            setError('Coin not found');
-          }
-        } else {
-          setError(result.error);
-        }
-      } catch (err) {
-        setError('Failed to fetch coin data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    const symbolUpper = symbol.toUpperCase();
+
+    // Build the coin data based on symbol
+    if (symbolUpper === 'BTC') {
+      return {
+        ...bitcoinData,
+        currentPrice: prices.bitcoin.price,
+        priceChange24h: prices.bitcoin.change24h,
+        marketCap: prices.bitcoin.marketCap,
+      };
+    } else if (symbolUpper === 'DOGE') {
+      return {
+        ...dogecoinData,
+        currentPrice: prices.dogecoin.price,
+        priceChange24h: prices.dogecoin.change24h,
+        marketCap: prices.dogecoin.marketCap,
+      };
+    } else if (symbolUpper === 'LTC') {
+      const ltcData = minerstatCoins.get('LTC');
+      return ltcData ? {
+        ...ltcData,
+        priceChange24h: prices.litecoin.change24h,
+        marketCap: prices.litecoin.marketCap,
+      } : null;
+    } else if (symbolUpper === 'XMR') {
+      const xmrData = minerstatCoins.get('XMR');
+      return xmrData ? {
+        ...xmrData,
+        priceChange24h: prices.monero.change24h,
+        marketCap: prices.monero.marketCap,
+      } : null;
+    } else if (symbolUpper === 'KAS') {
+      const kasData = minerstatCoins.get('KAS');
+      return kasData ? {
+        ...kasData,
+        priceChange24h: prices.kaspa.change24h,
+        marketCap: prices.kaspa.marketCap,
+      } : null;
+    } else if (symbolUpper === 'ETC') {
+      const etcData = minerstatCoins.get('ETC');
+      return etcData ? {
+        ...etcData,
+        priceChange24h: prices.ethereumClassic.change24h,
+        marketCap: prices.ethereumClassic.marketCap,
+      } : null;
     }
 
-    fetchData();
-  }, [symbol]);
+    return null;
+  } catch (error) {
+    console.error('Error fetching coin data:', error);
+    return null;
+  }
+}
+
+export default async function CoinPage({ params }: { params: Promise<{ symbol: string }> }) {
+  const { symbol: symbolParam } = await params;
+  const symbol = symbolParam.toUpperCase();
+  const coinData = await getCoinData(symbolParam);
+
+  if (!coinData) {
+    notFound();
+  }
 
   const getHashrateUnit = (sym: string) => {
     switch (sym) {
@@ -81,47 +134,12 @@ export default function CoinPage() {
     return value.toFixed(2);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-slate-400">Loading {symbol} data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !coinData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">{error || 'Coin not found'}</p>
-          <button
-            onClick={() => router.push('/')}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
       {/* Header */}
       <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 md:py-6">
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-4"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Dashboard
-          </button>
+          <BackButton />
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">

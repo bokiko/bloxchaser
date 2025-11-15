@@ -1,39 +1,84 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import { NetworkStats } from '@/types';
 import NetworkCard from '@/components/NetworkCard';
+import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
+import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
+import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
+import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
-export default function Home() {
-  const [networkData, setNetworkData] = useState<NetworkStats[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// Revalidate every hour (3600 seconds)
+export const revalidate = 3600;
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/hashrate');
-        const result = await response.json();
+async function getNetworkData(): Promise<NetworkStats[]> {
+  try {
+    // Fetch all data sources in parallel
+    const [bitcoinData, dogecoinData, minerstatCoins, prices] = await Promise.all([
+      fetchBitcoinHashrate(),
+      fetchDogecoinHashrate(),
+      fetchMinerstatCoins(),
+      fetchCryptoPrices(),
+    ]);
 
-        if (result.success) {
-          setNetworkData(result.data);
-        } else {
-          setError(result.error);
-        }
-      } catch (err) {
-        setError('Failed to fetch network data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
+    // Get coins from Minerstat
+    const litecoinData = minerstatCoins.get('LTC');
+    const moneroData = minerstatCoins.get('XMR');
+    const kaspaData = minerstatCoins.get('KAS');
+    const ethereumClassicData = minerstatCoins.get('ETC');
 
-    fetchData();
-    // Refresh data every 5 minutes
-    const interval = setInterval(fetchData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
+    // Merge price data with network stats
+    const bitcoinWithPrice = {
+      ...bitcoinData,
+      currentPrice: prices.bitcoin.price,
+      priceChange24h: prices.bitcoin.change24h,
+      marketCap: prices.bitcoin.marketCap,
+    };
+
+    const litecoinWithPrice = litecoinData ? {
+      ...litecoinData,
+      priceChange24h: prices.litecoin.change24h,
+      marketCap: prices.litecoin.marketCap,
+    } : null;
+
+    const moneroWithPrice = moneroData ? {
+      ...moneroData,
+      priceChange24h: prices.monero.change24h,
+      marketCap: prices.monero.marketCap,
+    } : null;
+
+    const dogecoinWithPrice = {
+      ...dogecoinData,
+      currentPrice: prices.dogecoin.price,
+      priceChange24h: prices.dogecoin.change24h,
+      marketCap: prices.dogecoin.marketCap,
+    };
+
+    const kaspaWithPrice = kaspaData ? {
+      ...kaspaData,
+      priceChange24h: prices.kaspa.change24h,
+      marketCap: prices.kaspa.marketCap,
+    } : null;
+
+    const ethereumClassicWithPrice = ethereumClassicData ? {
+      ...ethereumClassicData,
+      priceChange24h: prices.ethereumClassic.change24h,
+      marketCap: prices.ethereumClassic.marketCap,
+    } : null;
+
+    return [
+      bitcoinWithPrice,
+      litecoinWithPrice,
+      moneroWithPrice,
+      dogecoinWithPrice,
+      kaspaWithPrice,
+      ethereumClassicWithPrice,
+    ].filter((coin): coin is NetworkStats => coin !== null);
+  } catch (error) {
+    console.error('Error fetching network data:', error);
+    return [];
+  }
+}
+
+export default async function Home() {
+  const networkData = await getNetworkData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
@@ -59,22 +104,11 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {loading && (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-slate-400">Loading network data...</p>
-            </div>
-          </div>
-        )}
-
-        {error && (
+        {networkData.length === 0 ? (
           <div className="bg-red-900/20 border border-red-800 rounded-lg p-6 text-center">
-            <p className="text-red-400">{error}</p>
+            <p className="text-red-400">Failed to fetch network data</p>
           </div>
-        )}
-
-        {!loading && !error && networkData.length > 0 && (
+        ) : (
           <div className="space-y-8">
             {/* Network Cards Grid - Mobile Friendly */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
@@ -87,10 +121,10 @@ export default function Home() {
             <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/50 rounded-xl p-6 md:p-8 text-center">
               <h2 className="text-xl md:text-2xl font-bold text-white mb-3">More Networks Coming Soon</h2>
               <p className="text-slate-400 mb-4 text-sm md:text-base">
-                Dogecoin, Kaspa, Ethereum Classic, and more...
+                Ravencoin, Ergo, Flux, and more...
               </p>
               <div className="flex flex-wrap justify-center gap-2">
-                {['DOGE', 'KAS', 'ETC', 'RVN', 'ERG', 'FLUX'].map((coin) => (
+                {['RVN', 'ERG', 'FLUX', 'ZEC', 'BCH'].map((coin) => (
                   <span
                     key={coin}
                     className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-slate-400 text-xs md:text-sm"
