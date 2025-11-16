@@ -1,7 +1,12 @@
 # bloxchaser - Recent Updates Summary
 
-## IMPORTANT: Project Naming Convention
+## IMPORTANT: Project Guidelines
+
+### Naming Convention
 **The project is called "bloxchaser" - ALL LOWERCASE. Never use "BloxChaser" with capital letters.**
+
+### Official Logo
+**Always use `/public/logo.svg` as the official bloxchaser logo.** This is the orange wordmark that represents the brand across all pages and materials.
 
 ## Session Overview
 This document summarizes all changes made to bloxchaser during the recent development session.
