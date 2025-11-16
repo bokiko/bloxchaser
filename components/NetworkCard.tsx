@@ -25,6 +25,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       case 'RVN': return 'TH/s';
       case 'ZEC': return 'MSol/s';
       case 'BCH': return 'EH/s';
+      case 'ERG': return 'TH/s';
       default: return 'H/s';
     }
   };
@@ -40,6 +41,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       case 'ETC': return 2.56;
       case 'KAS': return 250;
       case 'XMR': return 0.6;
+      case 'ERG': return 9; // 9 ERG per block
       default: return 0;
     }
   };
@@ -55,6 +57,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       case 'ETC': return 6500; // 13 sec blocks
       case 'KAS': return 86400; // 1 sec blocks
       case 'XMR': return 720; // 2 min blocks
+      case 'ERG': return 720; // 2 min blocks
       default: return 144;
     }
   };

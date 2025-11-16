@@ -11,6 +11,7 @@ import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
 import { fetchRavencoinHashrate } from '@/lib/fetchRavencoinData';
 import { fetchZcashHashrate } from '@/lib/fetchZcashData';
 import { fetchBitcoinCashHashrate } from '@/lib/fetchBitcoinCashData';
+import { fetchErgoHashrate } from '@/lib/fetchErgoData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 import BackButton from '@/components/BackButton';
@@ -30,13 +31,14 @@ export async function generateStaticParams() {
     { symbol: 'rvn' },
     { symbol: 'zec' },
     { symbol: 'bch' },
+    { symbol: 'erg' },
   ];
 }
 
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, ergoData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
@@ -45,6 +47,7 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
       fetchRavencoinHashrate(),
       fetchZcashHashrate(),
       fetchBitcoinCashHashrate(),
+      fetchErgoHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
@@ -115,6 +118,13 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         priceChange24h: prices.bitcoinCash.change24h || 0,
         marketCap: prices.bitcoinCash.marketCap || 0,
       };
+    } else if (symbolUpper === 'ERG') {
+      return {
+        ...ergoData,
+        currentPrice: prices.ergo.price || 0,
+        priceChange24h: prices.ergo.change24h || 0,
+        marketCap: prices.ergo.marketCap || 0,
+      };
     }
 
     return null;
@@ -144,6 +154,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       case 'RVN': return 'TH/s';
       case 'ZEC': return 'MSol/s'; // Mega-solutions (Equihash)
       case 'BCH': return 'EH/s'; // Exahashes (same as Bitcoin)
+      case 'ERG': return 'TH/s'; // Terahashes (Autolykos v2)
       default: return 'H/s';
     }
   };
@@ -185,6 +196,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       RVN: { bg: 'from-blue-600 to-indigo-700', icon: '#384182' },
       ZEC: { bg: 'from-yellow-600 to-amber-700', icon: '#F4B728' },
       BCH: { bg: 'from-green-500 to-emerald-600', icon: '#8DC351' },
+      ERG: { bg: 'from-orange-500 to-red-600', icon: '#FF5722' },
     };
 
     const config = colors[symbol as keyof typeof colors] || colors.BTC;
@@ -220,6 +232,9 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
             )}
             {symbol === 'BCH' && (
               <path d="M23.638 14.904c-1.602 6.43-8.113 10.34-14.542 8.736C2.67 22.05-1.244 15.525.362 9.105 1.962 2.67 8.475-1.243 14.9.358c6.43 1.605 10.342 8.115 8.738 14.548v-.002zm-6.35-4.613c.24-1.59-.974-2.45-2.64-3.03l.54-2.153-1.315-.33-.525 2.107c-.345-.087-.705-.167-1.064-.25l.526-2.127-1.32-.33-.54 2.165c-.285-.067-.565-.132-.84-.2l-1.815-.45-.35 1.407s.975.225.955.236c.535.136.63.486.615.766l-1.477 5.92c-.075.166-.24.406-.614.314.015.02-.96-.24-.96-.24l-.66 1.51 1.71.426.93.242-.54 2.19 1.32.327.54-2.17c.36.1.705.19 1.05.273l-.51 2.154 1.32.33.545-2.19c2.24.427 3.93.257 4.64-1.774.57-1.637-.03-2.58-1.217-3.196.854-.193 1.5-.76 1.68-1.93h.01zm-3.01 4.22c-.404 1.64-3.157.75-4.05.53l.72-2.9c.896.23 3.757.67 3.33 2.37zm.41-4.24c-.37 1.49-2.662.735-3.405.55l.654-2.64c.744.18 3.137.524 2.75 2.084v.006z"/>
+            )}
+            {symbol === 'ERG' && (
+              <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.18L17.82 8 12 11.82 6.18 8 12 4.18zM5 9.18L11 12.5v6.32L5 15.5V9.18zm14 0v6.32l-6 3.32V12.5l6-3.32z"/>
             )}
           </svg>
         </div>
