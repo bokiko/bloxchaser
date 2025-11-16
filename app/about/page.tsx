@@ -26,8 +26,13 @@ export default function AboutPage() {
       <header className="border-b border-slate-700/50 backdrop-blur-sm bg-slate-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              bloxchaser
+            <Link href="/" className="flex items-center gap-3 cursor-pointer">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative">
+                  <img src="/logo.svg" alt="bloxchaser" className="h-10 w-auto" />
+                </div>
+              </div>
             </Link>
             <Link
               href="/"

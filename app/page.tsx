@@ -141,7 +141,7 @@ export default async function Home() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo + Slogan */}
-            <div className="flex items-center gap-3">
+            <a href="/" className="flex items-center gap-3 cursor-pointer">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
                 <div className="relative">
@@ -156,13 +156,12 @@ export default async function Home() {
                   Real-Time Mining Network Analytics
                 </p>
               </div>
-            </div>
+            </a>
 
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center gap-6">
               <a href="/" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Dashboard</a>
-              <a href="#networks" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Networks</a>
-              <a href="#about" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">About</a>
+              <a href="/about" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">About</a>
             </nav>
 
             {/* Live Data Indicator */}
