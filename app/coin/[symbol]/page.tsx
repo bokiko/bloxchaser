@@ -8,6 +8,7 @@ import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
 import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
+import { fetchRavencoinHashrate } from '@/lib/fetchRavencoinData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 import BackButton from '@/components/BackButton';
@@ -24,18 +25,20 @@ export async function generateStaticParams() {
     { symbol: 'doge' },
     { symbol: 'kas' },
     { symbol: 'etc' },
+    { symbol: 'rvn' },
   ];
 }
 
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
       fetchKaspaHashrate(),
       fetchEthereumClassicHashrate(),
+      fetchRavencoinHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
@@ -85,6 +88,13 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
     } else if (symbolUpper === 'ETC') {
       // ETC already has price/market cap from Blockscout
       return ethereumClassicData;
+    } else if (symbolUpper === 'RVN') {
+      return {
+        ...ravencoinData,
+        currentPrice: prices.ravencoin.price || 0,
+        priceChange24h: prices.ravencoin.change24h || 0,
+        marketCap: prices.ravencoin.marketCap || 0,
+      };
     }
 
     return null;
@@ -111,6 +121,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       case 'DOGE': return 'TH/s';
       case 'KAS': return 'PH/s'; // Petahashes
       case 'ETC': return 'TH/s';
+      case 'RVN': return 'TH/s';
       default: return 'H/s';
     }
   };
@@ -149,6 +160,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       DOGE: { bg: 'from-yellow-400 to-yellow-500', icon: '#C2A633' },
       KAS: { bg: 'from-teal-500 to-cyan-600', icon: '#49E9C9' },
       ETC: { bg: 'from-green-600 to-emerald-700', icon: '#328332' },
+      RVN: { bg: 'from-blue-600 to-indigo-700', icon: '#384182' },
     };
 
     const config = colors[symbol as keyof typeof colors] || colors.BTC;
@@ -176,6 +188,9 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
             {symbol === 'ETC' && (
               <path d="M12 0l-8 13.74L12 24l8-10.26L12 0zm0 2.47l5.55 9.48L12 17.53 6.45 11.95 12 2.47zM4 14.95L12 22l8-7.05-8 4.58-8-4.58z"/>
             )}
+            {symbol === 'RVN' && (
+              <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.18L11 12.5v6.32L4 15.5V9.18zm16 0v6.32l-7 3.32V12.5l7-3.32z"/>
+            )}
           </svg>
         </div>
       </div>
@@ -187,7 +202,9 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       {/* Header */}
       <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 md:py-6">
-          <BackButton />
+          <div className="flex items-center justify-between mb-4">
+            <BackButton />
+          </div>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-4 md:gap-6">
               {/* Coin Logo */}

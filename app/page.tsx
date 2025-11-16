@@ -1,10 +1,11 @@
 import { NetworkStats } from '@/types';
-import NetworkCard from '@/components/NetworkCard';
+import NetworkView from '@/components/NetworkView';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
 import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
+import { fetchRavencoinHashrate } from '@/lib/fetchRavencoinData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
@@ -14,14 +15,15 @@ export const revalidate = 3600;
 async function getNetworkData(): Promise<NetworkStats[]> {
   try {
     // Fetch all data sources in parallel with individual error handling
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate().catch(err => { console.error('Bitcoin fetch failed:', err.message); return null; }),
       fetchLitecoinHashrate().catch(err => { console.error('Litecoin fetch failed:', err.message); return null; }),
       fetchDogecoinHashrate().catch(err => { console.error('Dogecoin fetch failed:', err.message); return null; }),
       fetchKaspaHashrate().catch(err => { console.error('Kaspa fetch failed:', err.message); return null; }),
       fetchEthereumClassicHashrate().catch(err => { console.error('ETC fetch failed:', err.message); return null; }),
+      fetchRavencoinHashrate().catch(err => { console.error('Ravencoin fetch failed:', err.message); return null; }),
       fetchMinerstatCoins().catch(err => { console.error('Minerstat fetch failed:', err.message); return new Map(); }),
-      fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 } }; }),
+      fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 }, ravencoin: { price: 0, change24h: 0, marketCap: 0 } }; }),
     ]);
 
     // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR)
@@ -69,6 +71,13 @@ async function getNetworkData(): Promise<NetworkStats[]> {
     // ETC already has price/market cap from Blockscout, use it directly
     const ethereumClassicWithPrice = ethereumClassicData;
 
+    const ravencoinWithPrice = ravencoinData ? {
+      ...ravencoinData,
+      currentPrice: prices.ravencoin.price || 0,
+      priceChange24h: prices.ravencoin.change24h || 0,
+      marketCap: prices.ravencoin.marketCap || 0,
+    } : null;
+
     return [
       bitcoinWithPrice,
       litecoinWithPrice,
@@ -76,6 +85,7 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       dogecoinWithPrice,
       kaspaWithPrice,
       ethereumClassicWithPrice,
+      ravencoinWithPrice,
     ].filter((coin): coin is NetworkStats => coin !== null);
   } catch (error) {
     console.error('Error fetching network data:', error);
@@ -89,26 +99,19 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-700 bg-slate-900/80 backdrop-blur-md shadow-lg">
-        <div className="container mx-auto px-4 py-6">
+      <header className="sticky top-0 z-50 border-b border-slate-700 bg-gray-900/80 backdrop-blur-md shadow-lg">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {/* Animated Logo Icon */}
+            {/* Logo + Slogan */}
+            <div className="flex items-center gap-3">
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity animate-pulse"></div>
-                <div className="relative bg-gradient-to-br from-blue-600 to-cyan-600 p-3 rounded-lg shadow-xl">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative">
+                  <img src="/logo.svg" alt="bloxchaser" className="h-10 w-auto" />
                 </div>
               </div>
-
-              {/* Brand Text */}
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent mb-2 hover:from-blue-200 hover:to-cyan-200 transition-all duration-300">
-                  bloxchaser
-                </h1>
-                <p className="text-slate-400 flex items-center gap-2">
+                <p className="text-slate-400 flex items-center gap-2 text-sm">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
@@ -117,18 +120,20 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="text-right">
-              {/* Live Data Indicator */}
-              <div className="flex items-center justify-end gap-2 mb-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                <span className="text-xs font-semibold text-green-400 uppercase tracking-wide">Live Data</span>
-              </div>
+            {/* Navigation Links */}
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="/" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Dashboard</a>
+              <a href="#networks" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Networks</a>
+              <a href="#about" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">About</a>
+            </nav>
 
-              <div className="text-sm text-slate-400">Networks Tracked</div>
-              <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{networkData.length}</div>
+            {/* Live Data Indicator */}
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+              </span>
+              <span className="text-xs font-semibold text-green-400 uppercase tracking-wide">Live Data</span>
             </div>
           </div>
         </div>
@@ -142,12 +147,8 @@ export default async function Home() {
           </div>
         ) : (
           <div className="space-y-8">
-            {/* Network Cards Grid - Mobile Friendly */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-              {networkData.map((stats) => (
-                <NetworkCard key={stats.symbol} stats={stats} />
-              ))}
-            </div>
+            {/* Network View with Toggle */}
+            <NetworkView networkData={networkData} />
 
             {/* Coming Soon Section */}
             <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/50 rounded-xl p-6 md:p-8 text-center">
@@ -201,17 +202,11 @@ export default async function Home() {
 
             {/* Right: Disclaimer */}
             <div className="text-left md:text-right">
-              <p className="text-slate-400 text-xs flex items-center md:justify-end gap-1.5 mb-1">
+              <p className="text-slate-400 text-xs flex items-center md:justify-end gap-1.5">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Data updates every hour
-              </p>
-              <p className="text-slate-500 text-xs flex items-center md:justify-end gap-1.5">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                Not financial advice
+                Data updates every 5 minutes. Not financial advice.
               </p>
             </div>
           </div>

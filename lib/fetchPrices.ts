@@ -34,6 +34,7 @@ interface CryptoPrices {
   dogecoin: CryptoPrice;
   kaspa: CryptoPrice;
   ethereumClassic: CryptoPrice;
+  ravencoin: CryptoPrice;
 }
 
 // CoinPaprika coin IDs mapping
@@ -44,6 +45,7 @@ const COINPAPRIKA_IDS = {
   dogecoin: 'doge-dogecoin',
   kaspa: 'kas-kaspa',
   ethereumClassic: 'etc-ethereum-classic',
+  ravencoin: 'rvn-ravencoin',
 };
 
 async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
@@ -52,7 +54,7 @@ async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
       `${COINGECKO_API}/simple/price`,
       {
         params: {
-          ids: 'bitcoin,litecoin,monero,dogecoin,kaspa,ethereum-classic',
+          ids: 'bitcoin,litecoin,monero,dogecoin,kaspa,ethereum-classic,ravencoin',
           vs_currencies: 'usd',
           include_24hr_change: true,
           include_market_cap: true,
@@ -92,6 +94,11 @@ async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
         change24h: response.data['ethereum-classic'].usd_24h_change,
         marketCap: response.data['ethereum-classic'].usd_market_cap,
       },
+      ravencoin: {
+        price: response.data.ravencoin.usd,
+        change24h: response.data.ravencoin.usd_24h_change,
+        marketCap: response.data.ravencoin.usd_market_cap,
+      },
     };
   } catch (error) {
     console.error('CoinGecko API failed:', error);
@@ -102,13 +109,14 @@ async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
 async function fetchFromCoinPaprika(): Promise<CryptoPrices | null> {
   try {
     // Fetch all coins in parallel
-    const [btc, ltc, xmr, doge, kas, etc] = await Promise.all([
+    const [btc, ltc, xmr, doge, kas, etc, rvn] = await Promise.all([
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.bitcoin}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.litecoin}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.monero}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.dogecoin}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.kaspa}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.ethereumClassic}`, { timeout: 5000 }),
+      axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.ravencoin}`, { timeout: 5000 }),
     ]);
 
     return {
@@ -141,6 +149,11 @@ async function fetchFromCoinPaprika(): Promise<CryptoPrices | null> {
         price: etc.data.quotes.USD.price,
         change24h: etc.data.quotes.USD.percent_change_24h,
         marketCap: etc.data.quotes.USD.market_cap,
+      },
+      ravencoin: {
+        price: rvn.data.quotes.USD.price,
+        change24h: rvn.data.quotes.USD.percent_change_24h,
+        marketCap: rvn.data.quotes.USD.market_cap,
       },
     };
   } catch (error) {
@@ -175,5 +188,6 @@ export async function fetchCryptoPrices(): Promise<CryptoPrices> {
     dogecoin: { price: 0, change24h: 0, marketCap: 0 },
     kaspa: { price: 0, change24h: 0, marketCap: 0 },
     ethereumClassic: { price: 0, change24h: 0, marketCap: 0 },
+    ravencoin: { price: 0, change24h: 0, marketCap: 0 },
   };
 }

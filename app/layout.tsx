@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   description: "Track hashrate trends, difficulty adjustments, and network health for top mineable cryptocurrencies including Bitcoin, Litecoin, Monero, Dogecoin, Kaspa, and Ethereum Classic.",
   keywords: ["crypto mining", "hashrate", "network difficulty", "mining analytics", "bitcoin hashrate", "cryptocurrency mining"],
   authors: [{ name: "bloxchaser" }],
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
   openGraph: {
     title: "bloxchaser - Real-Time Mining Network Analytics",
     description: "Track hashrate trends, difficulty adjustments, and network health for top mineable cryptocurrencies.",
