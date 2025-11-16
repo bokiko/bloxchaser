@@ -25,6 +25,8 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
         return 'TH/s'; // Terahashes
       case 'RVN':
         return 'TH/s'; // Terahashes
+      case 'ZEC':
+        return 'MH/s'; // Megahashes
       default:
         return 'H/s';
     }

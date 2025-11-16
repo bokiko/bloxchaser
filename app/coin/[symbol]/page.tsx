@@ -9,6 +9,7 @@ import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
 import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
 import { fetchRavencoinHashrate } from '@/lib/fetchRavencoinData';
+import { fetchZcashHashrate } from '@/lib/fetchZcashData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 import BackButton from '@/components/BackButton';
@@ -26,19 +27,21 @@ export async function generateStaticParams() {
     { symbol: 'kas' },
     { symbol: 'etc' },
     { symbol: 'rvn' },
+    { symbol: 'zec' },
   ];
 }
 
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
       fetchKaspaHashrate(),
       fetchEthereumClassicHashrate(),
       fetchRavencoinHashrate(),
+      fetchZcashHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
@@ -95,6 +98,13 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         priceChange24h: prices.ravencoin.change24h || 0,
         marketCap: prices.ravencoin.marketCap || 0,
       };
+    } else if (symbolUpper === 'ZEC') {
+      return {
+        ...zcashData,
+        currentPrice: prices.zcash.price || 0,
+        priceChange24h: prices.zcash.change24h || 0,
+        marketCap: prices.zcash.marketCap || 0,
+      };
     }
 
     return null;
@@ -122,6 +132,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       case 'KAS': return 'PH/s'; // Petahashes
       case 'ETC': return 'TH/s';
       case 'RVN': return 'TH/s';
+      case 'ZEC': return 'MH/s'; // Megahashes
       default: return 'H/s';
     }
   };
@@ -161,6 +172,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       KAS: { bg: 'from-teal-500 to-cyan-600', icon: '#49E9C9' },
       ETC: { bg: 'from-green-600 to-emerald-700', icon: '#328332' },
       RVN: { bg: 'from-blue-600 to-indigo-700', icon: '#384182' },
+      ZEC: { bg: 'from-yellow-600 to-amber-700', icon: '#F4B728' },
     };
 
     const config = colors[symbol as keyof typeof colors] || colors.BTC;
@@ -190,6 +202,9 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
             )}
             {symbol === 'RVN' && (
               <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.18L11 12.5v6.32L4 15.5V9.18zm16 0v6.32l-7 3.32V12.5l7-3.32z"/>
+            )}
+            {symbol === 'ZEC' && (
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.294 17h-7.588L16.176 9H9.647l-.588 2h3.765L6.706 19h7.588L14.176 15h6.529l.588-2h-3.765l6.118-8h-7.529L14.235 9h-3.764l.588-2z"/>
             )}
           </svg>
         </div>
