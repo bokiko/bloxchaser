@@ -337,7 +337,7 @@ Contributions are welcome! Feel free to:
 - [x] What's New Modal
 
 ### Planned Features 🚀
-- [ ] GRIN, BEAM, FIRO support
+- [ ] More PoW networks coming soon
 - [ ] Email/SMS alerts for hashrate changes
 - [ ] Network comparison tool
 - [ ] Advanced profitability calculator (hardware specs, electricity costs)

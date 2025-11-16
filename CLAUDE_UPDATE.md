@@ -1,7 +1,10 @@
-# BloxChaser - Recent Updates Summary
+# bloxchaser - Recent Updates Summary
+
+## IMPORTANT: Project Naming Convention
+**The project is called "bloxchaser" - ALL LOWERCASE. Never use "BloxChaser" with capital letters.**
 
 ## Session Overview
-This document summarizes all changes made to BloxChaser during the recent development session.
+This document summarizes all changes made to bloxchaser during the recent development session.
 
 ---
 
@@ -178,7 +181,7 @@ Rate limiting during builds is expected and handled gracefully.
 ## Next Steps (Suggested)
 
 Potential future enhancements:
-- [ ] Add more PoW networks (GRIN, BEAM, FIRO)
+- [ ] More PoW networks coming soon
 - [ ] Historical price charts (7d/30d/90d)
 - [ ] Mining pool statistics
 - [ ] Profitability rankings
