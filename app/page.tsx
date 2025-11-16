@@ -214,8 +214,8 @@ export default async function Home() {
           {/* Bottom Bar: Additional Links */}
           <div className="border-t border-slate-700/50 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
             <div className="flex gap-4">
-              <a href="#" className="hover:text-slate-400 transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-slate-400 transition-colors">Terms of Use</a>
+              <a href="/legal/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</a>
+              <a href="/legal/terms" className="hover:text-slate-400 transition-colors">Terms of Use</a>
               <a href="https://github.com/bokiko/bloxchaser#readme" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">Documentation</a>
             </div>
             <div className="text-center sm:text-right">
