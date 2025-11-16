@@ -81,11 +81,18 @@ export async function fetchRavencoinHashrate(): Promise<NetworkStats> {
 
     for (let i = 90; i >= 0; i -= 3) {
       const blockHeight = Math.max(0, currentBlockHeight - (blocksPerDay * i));
+      // Estimate difficulty for historical points based on which block we fetched
+      const historicalDifficulty = i === 0 ? currentDifficulty :
+                                    i <= 7 && block7d ? block7d.difficulty :
+                                    i <= 30 && block30d ? block30d.difficulty :
+                                    i <= 90 && block90d ? block90d.difficulty : currentDifficulty;
+
       historicalData.push({
         timestamp: Date.now() - (i * 24 * 60 * 60 * 1000),
         hashrate: i === 0 ? currentHashrate :
                   i <= 7 ? hashrate7d :
                   i <= 30 ? hashrate30d : hashrate90d,
+        difficulty: historicalDifficulty,
       });
     }
 
