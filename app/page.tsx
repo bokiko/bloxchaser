@@ -1,5 +1,6 @@
 import { NetworkStats } from '@/types';
 import NetworkView from '@/components/NetworkView';
+import WhatsNewModal from '@/components/WhatsNewModal';
 import { fetchBitcoinHashrate } from '@/lib/fetchBitcoinData';
 import { fetchLitecoinHashrate } from '@/lib/fetchLitecoinData';
 import { fetchDogecoinHashrate } from '@/lib/fetchDogecoinData';
@@ -122,6 +123,9 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
+      {/* What's New Modal */}
+      <WhatsNewModal />
+
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-slate-700 bg-gray-900/80 backdrop-blur-md shadow-lg">
         <div className="container mx-auto px-4 py-4">
