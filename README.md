@@ -1,13 +1,35 @@
+<div align="center">
+  <img src="./public/github-banner.svg" alt="BloxChaser Banner" width="100%" />
+
+  <p align="center">
+    <strong>Real-Time Mining Network Analytics & Hashrate Tracker</strong>
+  </p>
+
+  <p align="center">
+    Monitor the pulse of Proof-of-Work networks in real-time
+  </p>
+
+  <p align="center">
+    <a href="https://bloxchaser.com">
+      <img src="https://img.shields.io/badge/demo-live-success" alt="Live Demo" />
+    </a>
+    <a href="https://nextjs.org/">
+      <img src="https://img.shields.io/badge/Next.js-16.0-black" alt="Next.js" />
+    </a>
+    <a href="https://www.typescriptlang.org/">
+      <img src="https://img.shields.io/badge/TypeScript-5.0-blue" alt="TypeScript" />
+    </a>
+    <a href="https://tailwindcss.com/">
+      <img src="https://img.shields.io/badge/Tailwind-4.0-38bdf8" alt="Tailwind CSS" />
+    </a>
+  </p>
+</div>
+
+---
+
 # BloxChaser
 
-**Real-Time Mining Network Analytics & Hashrate Tracker**
-
-BloxChaser is a comprehensive mining network analytics dashboard that tracks hashrate trends, difficulty adjustments, network health, and price data for top mineable cryptocurrencies. Monitor the pulse of Proof-of-Work networks in real-time.
-
-[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://bloxchaser.com)
-[![Next.js](https://img.shields.io/badge/Next.js-16.0-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38bdf8)](https://tailwindcss.com/)
+BloxChaser is a comprehensive mining network analytics dashboard that tracks hashrate trends, difficulty adjustments, network health, and price data for top mineable cryptocurrencies.
 
 ## Features
 
