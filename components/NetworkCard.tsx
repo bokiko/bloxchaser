@@ -92,15 +92,77 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
     return value.toFixed(2);
   };
 
+  const getCoinLogo = (symbol: string) => {
+    const logos: Record<string, React.ReactElement> = {
+      'BTC': (
+        <path d="M23.638 14.904c-1.602 6.43-8.113 10.34-14.542 8.736C2.67 22.05-1.244 15.525.362 9.105 1.962 2.67 8.475-1.243 14.9.358c6.43 1.605 10.342 8.115 8.738 14.548v-.002zm-6.35-4.613c.24-1.59-.974-2.45-2.64-3.03l.54-2.153-1.315-.33-.525 2.107c-.345-.087-.705-.167-1.064-.25l.526-2.127-1.32-.33-.54 2.165c-.285-.067-.565-.132-.84-.2l-1.815-.45-.35 1.407s.975.225.955.236c.535.136.63.486.615.766l-1.477 5.92c-.075.166-.24.406-.614.314.015.02-.96-.24-.96-.24l-.66 1.51 1.71.426.93.242-.54 2.19 1.32.327.54-2.17c.36.1.705.19 1.05.273l-.51 2.154 1.32.33.545-2.19c2.24.427 3.93.257 4.64-1.774.57-1.637-.03-2.58-1.217-3.196.854-.193 1.5-.76 1.68-1.93h.01zm-3.01 4.22c-.404 1.64-3.157.75-4.05.53l.72-2.9c.896.23 3.757.67 3.33 2.37zm.41-4.24c-.37 1.49-2.662.735-3.405.55l.654-2.64c.744.18 3.137.524 2.75 2.084v.006z"/>
+      ),
+      'LTC': (
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-.872 16.755l.522-2.178-2.075.52.377-1.582 2.075-.52 1.267-5.29h2.76l-1.144 4.773 2.462-.62-.377 1.582-2.462.62-.59 2.463H9.128z"/>
+      ),
+      'XMR': (
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.853 17.316h-3.29l-3.563-5.488-3.563 5.488H4.147V6.684L12 14.537l7.853-7.853v10.632z"/>
+      ),
+      'DOGE': (
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.853 10.447h-2.706v3.106h2.706v2.447H9.894v-2.447h1.259v-3.106H9.894V8h5.959v2.447z"/>
+      ),
+      'KAS': (
+        <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.18L11 12.5v6.32L4 15.5V9.18zm16 0v6.32l-7 3.32V12.5l7-3.32z"/>
+      ),
+      'ETC': (
+        <path d="M12 0l-8 13.74L12 24l8-10.26L12 0zm0 2.47l5.55 9.48L12 17.53 6.45 11.95 12 2.47zM4 14.95L12 22l8-7.05-8 4.58-8-4.58z"/>
+      ),
+      'RVN': (
+        <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.18L11 12.5v6.32L4 15.5V9.18zm16 0v6.32l-7 3.32V12.5l7-3.32z"/>
+      ),
+      'ZEC': (
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.294 17h-7.588L16.176 9H9.647l-.588 2h3.765L6.706 19h7.588L14.176 15h6.529l.588-2h-3.765l6.118-8h-7.529L14.235 9h-3.764l.588-2z"/>
+      ),
+      'BCH': (
+        <path d="M23.638 14.904c-1.602 6.43-8.113 10.34-14.542 8.736C2.67 22.05-1.244 15.525.362 9.105 1.962 2.67 8.475-1.243 14.9.358c6.43 1.605 10.342 8.115 8.738 14.548v-.002zm-6.35-4.613c.24-1.59-.974-2.45-2.64-3.03l.54-2.153-1.315-.33-.525 2.107c-.345-.087-.705-.167-1.064-.25l.526-2.127-1.32-.33-.54 2.165c-.285-.067-.565-.132-.84-.2l-1.815-.45-.35 1.407s.975.225.955.236c.535.136.63.486.615.766l-1.477 5.92c-.075.166-.24.406-.614.314.015.02-.96-.24-.96-.24l-.66 1.51 1.71.426.93.242-.54 2.19 1.32.327.54-2.17c.36.1.705.19 1.05.273l-.51 2.154 1.32.33.545-2.19c2.24.427 3.93.257 4.64-1.774.57-1.637-.03-2.58-1.217-3.196.854-.193 1.5-.76 1.68-1.93h.01zm-3.01 4.22c-.404 1.64-3.157.75-4.05.53l.72-2.9c.896.23 3.757.67 3.33 2.37zm.41-4.24c-.37 1.49-2.662.735-3.405.55l.654-2.64c.744.18 3.137.524 2.75 2.084v.006z"/>
+      ),
+      'ERG': (
+        <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.18L17.82 8 12 11.82 6.18 8 12 4.18zM5 9.18L11 12.5v6.32L5 15.5V9.18zm14 0v6.32l-6 3.32V12.5l6-3.32z"/>
+      ),
+    };
+
+    const colors: Record<string, string> = {
+      'BTC': '#F7931A',
+      'LTC': '#345D9D',
+      'XMR': '#FF6600',
+      'DOGE': '#C2A633',
+      'KAS': '#49E9C9',
+      'ETC': '#328332',
+      'RVN': '#384182',
+      'ZEC': '#F4B728',
+      'BCH': '#8DC351',
+      'ERG': '#FF5722',
+    };
+
+    return (
+      <div className="relative group">
+        <div className="absolute inset-0 rounded-full blur-md opacity-50 group-hover:opacity-75 transition-opacity" style={{ backgroundColor: colors[symbol] || '#F7931A' }}></div>
+        <div className="relative bg-slate-800/80 backdrop-blur-sm p-2 rounded-full shadow-lg border border-slate-700/50">
+          <svg className="w-8 h-8" fill={colors[symbol] || '#F7931A'} viewBox="0 0 24 24">
+            {logos[symbol] || logos['BTC']}
+          </svg>
+        </div>
+      </div>
+    );
+  };
+
   // Generate sparkline data from historical data
   const hashrateSparkline = stats.historicalData?.slice(-10).map(d => d.hashrate) || [];
 
   return (
     <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-xl p-6 shadow-xl hover:shadow-2xl hover:shadow-cyan-500/20 hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300">
-      {/* Coin Name */}
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold text-white">{stats.coin}</h2>
-        <p className="text-slate-400 text-sm">{stats.symbol}</p>
+      {/* Coin Name & Logo */}
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">{stats.coin}</h2>
+          <p className="text-slate-400 text-sm">{stats.symbol}</p>
+        </div>
+        {getCoinLogo(stats.symbol)}
       </div>
 
       {/* Top Row: Price + 24h change */}

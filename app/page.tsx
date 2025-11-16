@@ -187,24 +187,6 @@ export default async function Home() {
           <div className="space-y-8">
             {/* Network View with Toggle */}
             <NetworkView networkData={networkData} />
-
-            {/* Coming Soon Section */}
-            <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-800/50 rounded-xl p-6 md:p-8 text-center">
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-3">More Networks Coming Soon</h2>
-              <p className="text-slate-400 mb-4 text-sm md:text-base">
-                More PoW networks on the way...
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {['GRIN', 'BEAM', 'FIRO'].map((coin) => (
-                  <span
-                    key={coin}
-                    className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-slate-400 text-xs md:text-sm"
-                  >
-                    {coin}
-                  </span>
-                ))}
-              </div>
-            </div>
           </div>
         )}
       </main>
