@@ -51,7 +51,7 @@ const COINPAPRIKA_IDS = {
   ravencoin: 'rvn-ravencoin',
   zcash: 'zec-zcash',
   bitcoinCash: 'bch-bitcoin-cash',
-  ergo: 'erg-ergo',
+  ergo: 'efyt-ergo',
 };
 
 async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
