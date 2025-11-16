@@ -7,6 +7,7 @@ import { fetchKaspaHashrate } from '@/lib/fetchKaspaData';
 import { fetchEthereumClassicHashrate } from '@/lib/fetchEthereumClassicData';
 import { fetchRavencoinHashrate } from '@/lib/fetchRavencoinData';
 import { fetchZcashHashrate } from '@/lib/fetchZcashData';
+import { fetchBitcoinCashHashrate } from '@/lib/fetchBitcoinCashData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
@@ -16,7 +17,7 @@ export const revalidate = 3600;
 async function getNetworkData(): Promise<NetworkStats[]> {
   try {
     // Fetch all data sources in parallel with individual error handling
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate().catch(err => { console.error('Bitcoin fetch failed:', err.message); return null; }),
       fetchLitecoinHashrate().catch(err => { console.error('Litecoin fetch failed:', err.message); return null; }),
       fetchDogecoinHashrate().catch(err => { console.error('Dogecoin fetch failed:', err.message); return null; }),
@@ -24,8 +25,9 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       fetchEthereumClassicHashrate().catch(err => { console.error('ETC fetch failed:', err.message); return null; }),
       fetchRavencoinHashrate().catch(err => { console.error('Ravencoin fetch failed:', err.message); return null; }),
       fetchZcashHashrate().catch(err => { console.error('Zcash fetch failed:', err.message); return null; }),
+      fetchBitcoinCashHashrate().catch(err => { console.error('Bitcoin Cash fetch failed:', err.message); return null; }),
       fetchMinerstatCoins().catch(err => { console.error('Minerstat fetch failed:', err.message); return new Map(); }),
-      fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 }, ravencoin: { price: 0, change24h: 0, marketCap: 0 }, zcash: { price: 0, change24h: 0, marketCap: 0 } }; }),
+      fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 }, ravencoin: { price: 0, change24h: 0, marketCap: 0 }, zcash: { price: 0, change24h: 0, marketCap: 0 }, bitcoinCash: { price: 0, change24h: 0, marketCap: 0 } }; }),
     ]);
 
     // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR)
@@ -87,6 +89,13 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       marketCap: prices.zcash.marketCap || 0,
     } : null;
 
+    const bitcoinCashWithPrice = bitcoinCashData ? {
+      ...bitcoinCashData,
+      currentPrice: prices.bitcoinCash.price || 0,
+      priceChange24h: prices.bitcoinCash.change24h || 0,
+      marketCap: prices.bitcoinCash.marketCap || 0,
+    } : null;
+
     // Sort by market cap (descending)
     const coins = [
       bitcoinWithPrice,
@@ -97,6 +106,7 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       ethereumClassicWithPrice,
       ravencoinWithPrice,
       zcashWithPrice,
+      bitcoinCashWithPrice,
     ].filter((coin): coin is NetworkStats => coin !== null);
 
     // Sort by market cap, highest first
