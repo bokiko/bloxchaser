@@ -1,12 +1,13 @@
 # Website Improvements TODO
 
 ## Current State Analysis
-- Real-time data fetching for 6 cryptocurrencies (BTC, LTC, XMR, DOGE, KAS, ETC)
+- Real-time data fetching for 7 cryptocurrencies (BTC, LTC, XMR, DOGE, KAS, ETC, RVN)
 - Individual coin detail pages with charts
-- Price data from multiple sources
+- Price data from multiple sources with fallback chain
 - Hashrate and difficulty tracking
-- Historical data visualization
+- Historical data visualization (real blockchain data for RVN)
 - Table and grid view options
+- Legal pages (Terms of Use, Privacy Policy)
 
 ## Proposed Website Improvements
 
@@ -56,8 +57,8 @@
 - [ ] Add manual refresh button
 
 #### B. More Networks
+- [x] Ravencoin (RVN) - ✅ COMPLETED
 - [ ] Add more mineable coins:
-  - Ravencoin (RVN)
   - Ergo (ERG)
   - Flux (FLUX)
   - Zcash (ZEC)
@@ -147,7 +148,8 @@
 2. Sparkline charts on main page
 3. Tooltips/help for metrics
 4. Mobile responsiveness fixes
-5. More coins (RVN, ERG, FLUX)
+5. ~~More coins (RVN, ERG, FLUX)~~ - RVN ✅ COMPLETED
+6. More coins (ERG, FLUX)
 
 ### Phase 2 (Weeks 3-4) - Advanced Features
 1. Network Comparison Tool
@@ -195,11 +197,16 @@ Based on priority and impact, here's what I recommend focusing on FIRST:
    - Many miners check data on mobile
    - Test and fix any issues
 
-5. **Add 2-3 More Coins** (2-3 hours)
-   - RVN, ERG, or FLUX
+5. ~~**Add 2-3 More Coins** (2-3 hours)~~ - RVN ✅ COMPLETED
+   - ~~RVN~~, ERG, or FLUX
    - Increases site value
    - Relatively straightforward
 
-**Total Estimated Time: 8-12 hours for massive improvement**
+6. **Add Legal Pages** ✅ COMPLETED
+   - Terms of Use page
+   - Privacy Policy page
+   - Footer links
+
+**Total Estimated Time: 6-9 hours for massive improvement** (RVN and legal pages completed)
 
 What do you think? Should we proceed with this plan, or would you like to adjust priorities?
