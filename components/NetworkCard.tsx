@@ -291,7 +291,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
 
         {/* X Share Button */}
         <a
-          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${stats.symbol} hashrate ${stats.change7d >= 0 ? '+' : ''}${stats.change7d.toFixed(1)}% (7d) 📊 Check BloxChaser for real-time mining stats`)}&url=${encodeURIComponent('https://bloxchaser.com')}`}
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`$${stats.symbol} hashrate ${stats.change7d >= 0 ? '+' : ''}${stats.change7d.toFixed(1)}% (7d) 📊 Check @blxchaser for real-time mining stats`)}&url=${encodeURIComponent('https://bloxchaser.com')}`}
           target="_blank"
           rel="noopener noreferrer"
           className="col-span-2"
