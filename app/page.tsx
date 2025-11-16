@@ -13,15 +13,15 @@ export const revalidate = 3600;
 
 async function getNetworkData(): Promise<NetworkStats[]> {
   try {
-    // Fetch all data sources in parallel
+    // Fetch all data sources in parallel with individual error handling
     const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, minerstatCoins, prices] = await Promise.all([
-      fetchBitcoinHashrate(),
-      fetchLitecoinHashrate(),
-      fetchDogecoinHashrate(),
-      fetchKaspaHashrate(),
-      fetchEthereumClassicHashrate(),
-      fetchMinerstatCoins(),
-      fetchCryptoPrices(),
+      fetchBitcoinHashrate().catch(err => { console.error('Bitcoin fetch failed:', err.message); return null; }),
+      fetchLitecoinHashrate().catch(err => { console.error('Litecoin fetch failed:', err.message); return null; }),
+      fetchDogecoinHashrate().catch(err => { console.error('Dogecoin fetch failed:', err.message); return null; }),
+      fetchKaspaHashrate().catch(err => { console.error('Kaspa fetch failed:', err.message); return null; }),
+      fetchEthereumClassicHashrate().catch(err => { console.error('ETC fetch failed:', err.message); return null; }),
+      fetchMinerstatCoins().catch(err => { console.error('Minerstat fetch failed:', err.message); return new Map(); }),
+      fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 } }; }),
     ]);
 
     // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR)
@@ -29,22 +29,22 @@ async function getNetworkData(): Promise<NetworkStats[]> {
     const litecoinMinerstatData = minerstatCoins.get('LTC');
     const moneroData = minerstatCoins.get('XMR');
 
-    // Merge price data with network stats
-    const bitcoinWithPrice = {
+    // Merge price data with network stats (only if data exists)
+    const bitcoinWithPrice = bitcoinData ? {
       ...bitcoinData,
       currentPrice: bitcoinMinerstatData?.currentPrice || prices.bitcoin.price || 0,
       currentDifficulty: bitcoinMinerstatData?.currentDifficulty || bitcoinData.currentDifficulty,
       priceChange24h: prices.bitcoin.change24h || 0,
       marketCap: prices.bitcoin.marketCap || 0,
-    };
+    } : null;
 
-    const litecoinWithPrice = {
+    const litecoinWithPrice = litecoinData ? {
       ...litecoinData,
       currentPrice: litecoinMinerstatData?.currentPrice || prices.litecoin.price || 0,
       currentDifficulty: litecoinMinerstatData?.currentDifficulty || litecoinData.currentDifficulty,
       priceChange24h: prices.litecoin.change24h || 0,
       marketCap: prices.litecoin.marketCap || 0,
-    };
+    } : null;
 
     const moneroWithPrice = moneroData ? {
       ...moneroData,
@@ -52,19 +52,19 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       marketCap: prices.monero.marketCap,
     } : null;
 
-    const dogecoinWithPrice = {
+    const dogecoinWithPrice = dogecoinData ? {
       ...dogecoinData,
       currentPrice: prices.dogecoin.price || 0,
       priceChange24h: prices.dogecoin.change24h || 0,
       marketCap: prices.dogecoin.marketCap || 0,
-    };
+    } : null;
 
-    const kaspaWithPrice = {
+    const kaspaWithPrice = kaspaData ? {
       ...kaspaData,
       currentPrice: prices.kaspa.price || 0,
       priceChange24h: prices.kaspa.change24h || 0,
       marketCap: prices.kaspa.marketCap || 0,
-    };
+    } : null;
 
     // ETC already has price/market cap from Blockscout, use it directly
     const ethereumClassicWithPrice = ethereumClassicData;
