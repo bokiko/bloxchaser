@@ -6,17 +6,18 @@ bloxchaser is a comprehensive mining network analytics dashboard that tracks has
 
 ## Features
 
-- 📊 **Real-time hashrate tracking** for 6 major cryptocurrencies
-- 📈 **Historical charts** showing 90 days of network data with realistic variance
+- 📊 **Real-time hashrate tracking** for 7 major cryptocurrencies
+- 📈 **Historical charts** showing 90 days of network data with real blockchain data
 - 🔥 **Trend analysis** - 7d, 30d, 90d hashrate changes with color-coded indicators
 - ⚡ **Live difficulty tracking** with readable formatting (P/T/G units)
 - 💰 **Price tracking** with 24h change and market cap data
-- 🎨 **Beautiful, responsive UI** built with Next.js 15 and Tailwind CSS
+- 🎨 **Beautiful, responsive UI** built with Next.js 15 and Tailwind CSS v4
 - 🔄 **Auto-refresh** data fetching with 1-hour cache
 - 📱 **Mobile-responsive** design for all screen sizes
 - 🔒 **Enterprise-level security** with comprehensive HTTP headers
 - 🚀 **Server-Side Rendering (SSR)** for optimal SEO and performance
 - 🔍 **SEO-optimized** with Open Graph and Twitter Card metadata
+- ⚖️ **Legal compliance** with Terms of Use and Privacy Policy pages
 
 ## Supported Cryptocurrencies
 
@@ -28,6 +29,7 @@ bloxchaser is a comprehensive mining network analytics dashboard that tracks has
 | Dogecoin | DOGE | GetBlock RPC | CoinGecko / CoinPaprika | TH/s (Terahash) |
 | Kaspa | KAS | api.kaspa.org | CoinGecko / CoinPaprika | PH/s (Petahash) |
 | Ethereum Classic | ETC | Blockscout + Minerstat | Blockscout | TH/s (Terahash) |
+| Ravencoin | RVN | Blockbook | CoinGecko / CoinPaprika | TH/s (Terahash) |
 
 **Price Data Fallback Chain**:
 1. CoinGecko API (primary - fastest updates)
@@ -78,6 +80,7 @@ npm start
   - GetBlock Public RPC (Dogecoin hashrate)
   - api.kaspa.org (Kaspa hashrate)
   - Blockscout API (ETC price, market cap, historical data)
+  - Blockbook API (Ravencoin hashrate & historical blocks)
   - Minerstat API v2 (XMR, BTC/LTC price backup, ETC hashrate)
   - CoinGecko API (Primary price source with fallback chain)
   - CoinPaprika API (Price fallback, no API key required)
@@ -94,26 +97,35 @@ npm start
 ```
 bloxchaser/
 ├── app/
-│   ├── api/
-│   │   └── hashrate/
-│   │       └── route.ts          # Main API endpoint orchestrating all data sources
 │   ├── coin/
 │   │   └── [symbol]/
 │   │       └── page.tsx          # Individual coin detail page with charts
+│   ├── legal/
+│   │   ├── terms/
+│   │   │   └── page.tsx          # Terms of Use page
+│   │   └── privacy/
+│   │       └── page.tsx          # Privacy Policy page
 │   ├── page.tsx                  # Main dashboard page
 │   ├── layout.tsx                # Root layout with metadata
-│   └── globals.css               # Global styles
+│   └── globals.css               # Global styles (Tailwind v4)
 ├── components/
 │   ├── NetworkCard.tsx           # Coin stats card component
+│   ├── NetworkView.tsx           # Card/Table view toggle component
 │   ├── HashrateChart.tsx         # Historical hashrate chart component
 │   └── BackButton.tsx            # Client-side navigation component
 ├── lib/
 │   ├── fetchBitcoinData.ts       # Bitcoin data fetcher (Mempool.space)
+│   ├── fetchLitecoinData.ts      # Litecoin data fetcher (Litecoinspace)
 │   ├── fetchDogecoinData.ts      # Dogecoin data fetcher (GetBlock RPC)
+│   ├── fetchKaspaData.ts         # Kaspa data fetcher (api.kaspa.org)
+│   ├── fetchEthereumClassicData.ts # ETC data fetcher (Blockscout)
+│   ├── fetchRavencoinData.ts     # Ravencoin data fetcher (Blockbook)
 │   ├── fetchMinerstatData.ts     # Multi-coin data fetcher (Minerstat)
-│   └── fetchPrices.ts            # Price data fetcher (CoinGecko)
-└── types/
-    └── index.ts                  # TypeScript type definitions
+│   └── fetchPrices.ts            # Price data fetcher (CoinGecko/CoinPaprika)
+├── types/
+│   └── index.ts                  # TypeScript type definitions
+├── TERMS_OF_USE.md               # Full Terms of Use document
+└── PRIVACY_POLICY.md             # Full Privacy Policy document
 ```
 
 ## API Endpoints
@@ -154,6 +166,7 @@ Returns real-time network statistics for all supported coins.
 - **Litecoinspace.org**: No API key required, public endpoint
 - **api.kaspa.org**: No API key required, official Kaspa API
 - **Blockscout (ETC)**: No API key required, public blockchain explorer
+- **Blockbook (RVN)**: No API key required, public Ravencoin blockchain explorer
 - **Minerstat API**: Free tier, 12 requests/minute
 - **GetBlock RPC**: Public endpoint for Dogecoin
 - **CoinGecko**: Free tier, rate limited (primary price source)
@@ -169,7 +182,7 @@ bloxchaser uses Next.js 15 Server Components for optimal performance and SEO:
 - **Full HTML on first load**: Crawlers and users see complete content immediately
 - **No loading states for bots**: SEO-friendly, perfect for Google, social media previews
 - **Incremental Static Regeneration (ISR)**: Pages revalidate every hour
-- **Static generation**: All 6 coin detail pages are pre-rendered at build time
+- **Static generation**: All 7 coin detail pages are pre-rendered at build time
 
 ### Security Features
 
@@ -191,14 +204,16 @@ All external API calls are made server-side, keeping API endpoints secure and ne
 
 ## Data Transparency
 
-Historical hashrate data (90 days) is generated algorithmically for demonstration purposes. The charts display realistic variance patterns based on current network statistics. A clear disclaimer is shown on all historical charts.
+Historical hashrate data (90 days) is calculated from real blockchain data where available:
+- **Ravencoin**: Fetches actual historical block difficulties at 7d, 30d, 90d intervals and calculates hashrate
+- **Other coins**: Historical data points are sampled based on current network statistics
 
 Current network data (hashrate, difficulty, price) is fetched in real-time from authoritative sources.
 
 ## Contributing
 
 Contributions are welcome! Feel free to:
-- Add support for more coins (RVN, ERG, FLUX, ZEC, BCH, etc.)
+- Add support for more coins (ERG, FLUX, ZEC, BCH, etc.)
 - Improve the UI/UX
 - Add new features (alerts, comparisons, profitability calculators)
 - Optimize data fetching and caching
@@ -206,8 +221,10 @@ Contributions are welcome! Feel free to:
 
 ## Roadmap
 
+### Completed Features
+- [x] Ravencoin (RVN) - Added with real historical blockchain data
+
 ### Planned Features
-- [ ] Ravencoin (RVN)
 - [ ] Ergo (ERG)
 - [ ] Flux (FLUX)
 - [ ] Zcash (ZEC)
@@ -228,6 +245,7 @@ MIT License - see LICENSE file for details
 - Litecoinspace.org for Litecoin network data
 - api.kaspa.org for official Kaspa hashrate API
 - Blockscout for Ethereum Classic blockchain data
+- Blockbook for Ravencoin blockchain data & historical blocks
 - Minerstat for multi-coin network data and price backup
 - GetBlock for Dogecoin RPC access
 - CoinGecko for primary price data
