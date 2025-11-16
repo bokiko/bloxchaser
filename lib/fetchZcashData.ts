@@ -35,9 +35,10 @@ async function fetchBlockDifficulty(blockHeight: number): Promise<{ difficulty: 
 }
 
 function calculateHashrateFromDifficulty(difficulty: number): number {
-  // Formula: Hashrate = Difficulty * 2^32 / BlockTime
-  const hashrate = (difficulty * Math.pow(2, 32)) / ZCASH_BLOCK_TIME;
-  return hashrate / 1e6; // Convert to MH/s (Megahash)
+  // Zcash uses Equihash algorithm - hashrate is measured in Sol/s (solutions/second)
+  // For Zcash, the difficulty value directly represents the network's Sol/s
+  // We return in MSol/s (Mega-solutions per second) for display
+  return difficulty / 1e6; // Convert to MSol/s
 }
 
 export async function fetchZcashHashrate(): Promise<NetworkStats> {

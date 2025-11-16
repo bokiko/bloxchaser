@@ -142,7 +142,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       case 'KAS': return 'PH/s'; // Petahashes
       case 'ETC': return 'TH/s';
       case 'RVN': return 'TH/s';
-      case 'ZEC': return 'MH/s'; // Megahashes
+      case 'ZEC': return 'MSol/s'; // Mega-solutions (Equihash)
       case 'BCH': return 'EH/s'; // Exahashes (same as Bitcoin)
       default: return 'H/s';
     }

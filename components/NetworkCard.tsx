@@ -26,7 +26,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       case 'RVN':
         return 'TH/s'; // Terahashes
       case 'ZEC':
-        return 'MH/s'; // Megahashes
+        return 'MSol/s'; // Mega-solutions (Equihash)
       case 'BCH':
         return 'EH/s'; // Exahashes (same as Bitcoin)
       default:
