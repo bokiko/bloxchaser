@@ -97,8 +97,8 @@ export async function fetchRavencoinHashrate(): Promise<NetworkStats> {
     return {
       coin: 'Ravencoin',
       symbol: 'RVN',
-      currentHashrate: hashrateInTH,
-      currentDifficulty: difficulty,
+      currentHashrate: currentHashrate,
+      currentDifficulty: currentDifficulty,
       change7d,
       change30d,
       change90d,
