@@ -110,7 +110,6 @@ export async function fetchRavencoinHashrate(): Promise<NetworkStats> {
       change30d,
       change90d,
       lastUpdated: new Date(data.blockbook.lastBlockTime).getTime(),
-      blockHeight: data.backend.blocks,
       historicalData,
       currentPrice: 0, // Will be filled by price fetcher
       priceChange24h: 0, // Will be filled by price fetcher
