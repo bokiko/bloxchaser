@@ -37,8 +37,8 @@ export async function fetchDogecoinHashrate(): Promise<NetworkStats> {
 
     const miningInfo = response.data.result;
 
-    // Convert hashrate from H/s to TH/s
-    const currentHashrate = miningInfo.networkhashps / 1e12; // Convert to TH/s
+    // Convert hashrate from H/s to PH/s
+    const currentHashrate = miningInfo.networkhashps / 1e15; // Convert to PH/s
     const currentDifficulty = miningInfo.difficulty;
 
     // Generate 90 days of historical data
