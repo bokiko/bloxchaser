@@ -62,7 +62,7 @@ async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
       `${COINGECKO_API}/simple/price`,
       {
         params: {
-          ids: 'bitcoin,litecoin,monero,dogecoin,kaspa,ethereum-classic,ravencoin,zcash,bitcoin-cash,ergo,conflux-network',
+          ids: 'bitcoin,litecoin,monero,dogecoin,kaspa,ethereum-classic,ravencoin,zcash,bitcoin-cash,ergo',
           vs_currencies: 'usd',
           include_24hr_change: true,
           include_market_cap: true,
@@ -123,9 +123,9 @@ async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
         marketCap: response.data.ergo.usd_market_cap,
       },
       conflux: {
-        price: response.data['conflux-network'].usd,
-        change24h: response.data['conflux-network'].usd_24h_change,
-        marketCap: response.data['conflux-network'].usd_market_cap,
+        price: 0,
+        change24h: 0,
+        marketCap: 0,
       },
     };
   } catch (error) {
@@ -215,17 +215,29 @@ async function fetchFromCoinPaprika(): Promise<CryptoPrices | null> {
 }
 
 export async function fetchCryptoPrices(): Promise<CryptoPrices> {
-  // Try CoinGecko first (fastest updates)
-  console.log('Attempting to fetch prices from CoinGecko...');
-  const coinGeckoData = await fetchFromCoinGecko();
+  // Fetch both sources in parallel (CoinGecko for most coins, CoinPaprika for Conflux)
+  console.log('Attempting to fetch prices from CoinGecko and CoinPaprika...');
+  const [coinGeckoData, coinPaprikaData] = await Promise.all([
+    fetchFromCoinGecko(),
+    fetchFromCoinPaprika(),
+  ]);
+
+  // If CoinGecko succeeded, merge with CoinPaprika for Conflux
+  if (coinGeckoData && coinPaprikaData) {
+    console.log('✅ Successfully fetched prices from CoinGecko + CoinPaprika (Conflux)');
+    return {
+      ...coinGeckoData,
+      conflux: coinPaprikaData.conflux, // Use CoinPaprika for Conflux
+    };
+  }
+
+  // If only CoinGecko succeeded, use it (Conflux will be 0)
   if (coinGeckoData) {
-    console.log('✅ Successfully fetched prices from CoinGecko');
+    console.log('✅ Successfully fetched prices from CoinGecko (Conflux unavailable)');
     return coinGeckoData;
   }
 
-  // Fallback to CoinPaprika (no API key required, reliable)
-  console.log('CoinGecko failed, trying CoinPaprika...');
-  const coinPaprikaData = await fetchFromCoinPaprika();
+  // If only CoinPaprika succeeded, use it for all coins
   if (coinPaprikaData) {
     console.log('✅ Successfully fetched prices from CoinPaprika (fallback)');
     return coinPaprikaData;
