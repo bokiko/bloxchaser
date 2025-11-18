@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 const COINPAPRIKA_API = 'https://api.coinpaprika.com/v1';
+const BINANCE_API = 'https://api.binance.com/api/v3';
 
 interface CoinGeckoPriceData {
   [key: string]: {
@@ -214,6 +215,27 @@ async function fetchFromCoinPaprika(): Promise<CryptoPrices | null> {
   }
 }
 
+async function fetchConfluxFromBinance(): Promise<CryptoPrice | null> {
+  try {
+    const response = await axios.get(
+      `${BINANCE_API}/ticker/24hr`,
+      {
+        params: { symbol: 'CFXUSDT' },
+        timeout: 5000,
+      }
+    );
+
+    return {
+      price: parseFloat(response.data.lastPrice),
+      change24h: parseFloat(response.data.priceChangePercent),
+      marketCap: 0, // Binance doesn't provide market cap
+    };
+  } catch (error) {
+    console.error('Binance API failed for Conflux:', error);
+    return null;
+  }
+}
+
 export async function fetchCryptoPrices(): Promise<CryptoPrices> {
   // Fetch both sources in parallel (CoinGecko for most coins, CoinPaprika for Conflux)
   console.log('Attempting to fetch prices from CoinGecko and CoinPaprika...');
@@ -231,8 +253,16 @@ export async function fetchCryptoPrices(): Promise<CryptoPrices> {
     };
   }
 
-  // If only CoinGecko succeeded, use it (Conflux will be 0)
+  // If only CoinGecko succeeded, try Binance for Conflux
   if (coinGeckoData) {
+    const binanceConflux = await fetchConfluxFromBinance();
+    if (binanceConflux) {
+      console.log('✅ Successfully fetched prices from CoinGecko + Binance (Conflux)');
+      return {
+        ...coinGeckoData,
+        conflux: binanceConflux,
+      };
+    }
     console.log('✅ Successfully fetched prices from CoinGecko (Conflux unavailable)');
     return coinGeckoData;
   }
