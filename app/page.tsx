@@ -35,10 +35,11 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 }, ravencoin: { price: 0, change24h: 0, marketCap: 0 }, zcash: { price: 0, change24h: 0, marketCap: 0 }, bitcoinCash: { price: 0, change24h: 0, marketCap: 0 }, ergo: { price: 0, change24h: 0, marketCap: 0 }, conflux: { price: 0, change24h: 0, marketCap: 0 } }; }),
     ]);
 
-    // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR)
+    // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR, CFX for price)
     const bitcoinMinerstatData = minerstatCoins.get('BTC');
     const litecoinMinerstatData = minerstatCoins.get('LTC');
     const moneroData = minerstatCoins.get('XMR');
+    const confluxMinerstatData = minerstatCoins.get('CFX');
 
     // Merge price data with network stats (only if data exists)
     const bitcoinWithPrice = bitcoinData ? {
@@ -110,7 +111,7 @@ async function getNetworkData(): Promise<NetworkStats[]> {
 
     const confluxWithPrice = confluxData ? {
       ...confluxData,
-      currentPrice: prices.conflux.price || 0,
+      currentPrice: confluxMinerstatData?.currentPrice || prices.conflux.price || 0,
       priceChange24h: prices.conflux.change24h || 0,
       marketCap: prices.conflux.marketCap || 0,
     } : null;

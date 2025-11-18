@@ -129,9 +129,10 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         marketCap: prices.ergo.marketCap || 0,
       };
     } else if (symbolUpper === 'CFX') {
+      const confluxMinerstatData = minerstatCoins.get('CFX');
       return {
         ...confluxData,
-        currentPrice: prices.conflux.price || 0,
+        currentPrice: confluxMinerstatData?.currentPrice || prices.conflux.price || 0,
         priceChange24h: prices.conflux.change24h || 0,
         marketCap: prices.conflux.marketCap || 0,
       };
