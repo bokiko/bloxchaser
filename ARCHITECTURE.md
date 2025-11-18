@@ -6,14 +6,180 @@
 
 ---
 
+## ⚠️ CRITICAL: MANDATORY RULES - NEVER IGNORE
+
+**This document is a PERMANENT GUIDE that MUST be followed in every development session.**
+
+### For AI Assistants (Claude Code):
+- **ALWAYS** consult this guide before adding any new network
+- **ALWAYS** follow the 8-step checklist completely
+- **NEVER** skip API endpoint research (see Rule 0 below)
+- **NEVER** deviate from the `NetworkStats` interface
+- **NEVER** ignore unit conversion verification
+- **ALWAYS** test against real-world data sources before committing
+
+### For Human Developers:
+- This guide ensures data integrity and code consistency
+- All network additions must pass the verification checklist
+- No exceptions to the type system or data flow patterns
+
+---
+
 ## Table of Contents
 
-1. [Project Structure](#project-structure)
-2. [Data Structure & Types](#data-structure--types)
-3. [Data Flow Architecture](#data-flow-architecture)
-4. [Rules for Adding New Networks](#rules-for-adding-new-networks)
-5. [Network Configuration Checklist](#network-configuration-checklist)
-6. [File Modification Checklist](#file-modification-checklist)
+1. [RULE 0: API Endpoint Research (MANDATORY)](#rule-0-api-endpoint-research-mandatory)
+2. [Project Structure](#project-structure)
+3. [Data Structure & Types](#data-structure--types)
+4. [Data Flow Architecture](#data-flow-architecture)
+5. [Rules for Adding New Networks](#rules-for-adding-new-networks)
+6. [Network Configuration Checklist](#network-configuration-checklist)
+7. [File Modification Checklist](#file-modification-checklist)
+
+---
+
+## RULE 0: API Endpoint Research (MANDATORY)
+
+**⚠️ CRITICAL REQUIREMENT: When adding ANY new network, you MUST research and document API endpoints BEFORE writing any code.**
+
+### Step 0: API Endpoint Discovery
+
+Before creating any fetcher file, you MUST find and verify:
+
+#### 1. Primary Explorer API Endpoint
+- **Official block explorer** for the coin
+- Must provide: hashrate, difficulty, and/or block data
+- Must be publicly accessible (no API key required, or key is available)
+- Must be actively maintained (check for recent updates)
+
+#### 2. Secondary Support API (Fallback #1)
+- Alternative source for the same data
+- Can be: another explorer, mining pool API, or aggregator
+- Must provide at least: hashrate OR difficulty data
+- Preferably from a different provider than primary
+
+#### 3. Tertiary Support API (Fallback #2)
+- Third alternative data source
+- Can be: Minerstat, CoinWarz, mining pool stats, or blockchain RPC
+- Used as final fallback if primary and secondary fail
+- Must be independently verifiable
+
+### Research Process (Step-by-Step)
+
+When user requests: "Add GRIN network"
+
+**YOU MUST DO THIS FIRST:**
+
+```
+1. Search for "GRIN blockchain explorer API"
+2. Search for "GRIN network hashrate API"
+3. Search for "GRIN mining pool API"
+4. Test each endpoint with curl or WebFetch
+5. Document findings in code comments
+6. Choose primary, secondary, tertiary based on reliability
+```
+
+### Example Documentation Format
+
+Add this comment block at the top of every fetcher file:
+
+```typescript
+/**
+ * GRIN Network Data Fetcher
+ *
+ * API Endpoints (in order of preference):
+ *
+ * PRIMARY: https://grinexplorer.net/api/v1
+ *   - Provides: hashrate, difficulty, block data
+ *   - Tested: 2025-01-18
+ *   - Status: Active ✅
+ *
+ * SECONDARY: https://grinscan.net/api
+ *   - Provides: difficulty, network stats
+ *   - Tested: 2025-01-18
+ *   - Status: Active ✅
+ *
+ * TERTIARY: Minerstat API (https://api.minerstat.com/v2/coins?list=GRIN)
+ *   - Provides: network_hashrate, difficulty, price
+ *   - Tested: 2025-01-18
+ *   - Status: Active ✅
+ *
+ * FALLBACK PLAN: If all APIs fail, calculate hashrate from difficulty using:
+ *   - Algorithm: Cuckatoo31+ (GRIN's PoW algorithm)
+ *   - Formula: hashrate = (difficulty × 2^32) / block_time / adjustment_factor
+ *   - Block time: 60 seconds
+ */
+```
+
+### Verification Checklist (BEFORE CODING)
+
+- [ ] Found at least 3 API endpoints for this network
+- [ ] Tested primary endpoint with `curl` or `WebFetch`
+- [ ] Verified data format and availability
+- [ ] Checked API rate limits (if any)
+- [ ] Confirmed no authentication required (or obtained API key)
+- [ ] Cross-verified hashrate values between sources (within 10% tolerance)
+- [ ] Documented all endpoints in code comments
+- [ ] Identified fallback calculation method if all APIs fail
+
+### Real-World Examples from Current Networks
+
+**Bitcoin:**
+```
+PRIMARY: mempool.space/api/v1 (hashrate data) ✅
+SECONDARY: blockchain.info/stats (network stats) ✅
+TERTIARY: Minerstat API (aggregated data) ✅
+```
+
+**Dogecoin:**
+```
+PRIMARY: GetBlock RPC (networkhashps) ✅
+SECONDARY: dogechain.info/api (network stats) ✅
+TERTIARY: Minerstat API (aggregated data) ✅
+```
+
+**Kaspa:**
+```
+PRIMARY: api.kaspa.org/info/hashrate (official API) ✅
+SECONDARY: kas.fyi (community explorer) ✅
+TERTIARY: Minerstat API (aggregated data) ✅
+```
+
+**Ergo:**
+```
+PRIMARY: Minerstat API (special Autolykos calculation) ✅
+SECONDARY: explorer.ergoplatform.com/api (official explorer) ⚠️ (difficulty only)
+TERTIARY: Calculate from difficulty (backup method) ✅
+```
+
+### What to Do if You Can't Find 3 Sources
+
+**Minimum requirement: 1 reliable source + 1 calculation method**
+
+If you can only find 1 API:
+1. Use that as PRIMARY
+2. Implement hashrate calculation from difficulty as SECONDARY
+3. Use Minerstat as TERTIARY (if they support the coin)
+
+**Example:**
+```typescript
+// PRIMARY: Official API
+const response = await axios.get('https://explorer.coin.com/api/hashrate');
+const hashrate = response.data.hashrate;
+
+// SECONDARY: Calculate from difficulty
+const calculatedHashrate = (difficulty * Math.pow(2, 32)) / blockTime / conversionFactor;
+
+// TERTIARY: Minerstat fallback
+const minerstatData = await fetchMinerstatCoins().get('COIN');
+```
+
+### Why This Rule Exists
+
+1. **Reliability:** If one API goes down, we have backups
+2. **Accuracy:** Cross-verification prevents incorrect data
+3. **Maintainability:** Future developers know where data comes from
+4. **Debugging:** Easy to test each source independently
+5. **Transparency:** Users can verify our data against public sources
 
 ---
 
@@ -401,17 +567,49 @@ export async function fetchNewCoinHashrate(): Promise<NetworkStats | null> {
 
 Use this checklist when adding a new network (e.g., "GRIN"):
 
+### Step 0: Research API Endpoints (MANDATORY - DO THIS FIRST!)
+
+**⚠️ BEFORE writing ANY code, complete this research:**
+
+- [ ] Search for "[COIN] blockchain explorer API"
+- [ ] Search for "[COIN] network hashrate API"
+- [ ] Search for "[COIN] mining pool API"
+- [ ] Test PRIMARY endpoint with curl/WebFetch (verify it returns data)
+- [ ] Test SECONDARY endpoint with curl/WebFetch
+- [ ] Test TERTIARY endpoint with curl/WebFetch
+- [ ] Cross-verify hashrate values match between sources (within 10% tolerance)
+- [ ] Document all 3 endpoints in fetcher file comments
+- [ ] Identify PoW algorithm and block time
+- [ ] Find current block reward and halving schedule
+- [ ] Verify hashrate unit (GH/s, TH/s, PH/s, EH/s)
+- [ ] Calculate expected unit conversion divisor
+
+**Example Research Output:**
+```
+GRIN Network Research (2025-01-18):
+- PRIMARY: https://grinexplorer.net/api/v1/stats (hashrate: 5.2 KGps)
+- SECONDARY: https://grinscan.net/api/network (difficulty: 125000)
+- TERTIARY: Minerstat (network_hashrate: 5.2e12 H/s)
+- Algorithm: Cuckatoo31+
+- Block time: 60 seconds
+- Unit: KGps (Kilo-graphs per second) or TH/s equivalent
+- Conversion: Raw hashrate ÷ 1e12 = TH/s
+```
+
 ### Step 1: Create Data Fetcher
 
 - [ ] Create `/lib/fetchGrinData.ts`
+- [ ] Add API endpoint documentation comment block at top of file (see RULE 0 format)
 - [ ] Export `async function fetchGrinHashrate(): Promise<NetworkStats>`
-- [ ] Implement API call to fetch hashrate
-- [ ] Convert hashrate to correct unit (consult algorithm documentation)
+- [ ] Implement PRIMARY API call to fetch hashrate
+- [ ] Implement SECONDARY API fallback (if primary fails)
+- [ ] Implement TERTIARY API fallback (if secondary fails)
+- [ ] Convert hashrate to correct unit using verified divisor from Step 0
 - [ ] Build 90-day `historicalData` array
 - [ ] Calculate `change7d`, `change30d`, `change90d` from historical data
 - [ ] Set `currentPrice`, `priceChange24h`, `marketCap` to 0
 - [ ] Add comprehensive error handling with `try/catch`
-- [ ] Test against real API to verify hashrate accuracy
+- [ ] Test against real API to verify hashrate accuracy (must match Step 0 research)
 
 ### Step 2: Add Price Support
 
