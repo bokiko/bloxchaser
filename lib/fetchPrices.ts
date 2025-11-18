@@ -3,6 +3,8 @@ import axios from 'axios';
 const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 const COINPAPRIKA_API = 'https://api.coinpaprika.com/v1';
 const BINANCE_API = 'https://api.binance.com/api/v3';
+const CRYPTOCOMPARE_API = 'https://min-api.cryptocompare.com';
+const CRYPTOCOMPARE_API_KEY = process.env.CRYPTOCOMPARE_API_KEY || '';
 
 interface CoinGeckoPriceData {
   [key: string]: {
@@ -236,6 +238,34 @@ async function fetchConfluxFromBinance(): Promise<CryptoPrice | null> {
   }
 }
 
+async function fetchConfluxFromCryptoCompare(): Promise<CryptoPrice | null> {
+  try {
+    if (!CRYPTOCOMPARE_API_KEY) {
+      console.log('CryptoCompare API key not configured');
+      return null;
+    }
+
+    const response = await axios.get(
+      `${CRYPTOCOMPARE_API}/data/pricemultifull`,
+      {
+        params: { fsyms: 'CFX', tsyms: 'USD' },
+        headers: { authorization: `Apikey ${CRYPTOCOMPARE_API_KEY}` },
+        timeout: 5000,
+      }
+    );
+
+    const cfxData = response.data.RAW.CFX.USD;
+    return {
+      price: cfxData.PRICE,
+      change24h: cfxData.CHANGEPCT24HOUR,
+      marketCap: cfxData.MKTCAP,
+    };
+  } catch (error) {
+    console.error('CryptoCompare API failed for Conflux:', error);
+    return null;
+  }
+}
+
 export async function fetchCryptoPrices(): Promise<CryptoPrices> {
   // Fetch both sources in parallel (CoinGecko for most coins, CoinPaprika for Conflux)
   console.log('Attempting to fetch prices from CoinGecko and CoinPaprika...');
@@ -253,8 +283,19 @@ export async function fetchCryptoPrices(): Promise<CryptoPrices> {
     };
   }
 
-  // If only CoinGecko succeeded, try Binance for Conflux
+  // If only CoinGecko succeeded, try CryptoCompare then Binance for Conflux
   if (coinGeckoData) {
+    // Try CryptoCompare first (has market cap + 24h change)
+    const cryptoCompareConflux = await fetchConfluxFromCryptoCompare();
+    if (cryptoCompareConflux) {
+      console.log('✅ Successfully fetched prices from CoinGecko + CryptoCompare (Conflux)');
+      return {
+        ...coinGeckoData,
+        conflux: cryptoCompareConflux,
+      };
+    }
+
+    // Fallback to Binance (has 24h change, no market cap)
     const binanceConflux = await fetchConfluxFromBinance();
     if (binanceConflux) {
       console.log('✅ Successfully fetched prices from CoinGecko + Binance (Conflux)');
@@ -263,6 +304,7 @@ export async function fetchCryptoPrices(): Promise<CryptoPrices> {
         conflux: binanceConflux,
       };
     }
+
     console.log('✅ Successfully fetched prices from CoinGecko (Conflux unavailable)');
     return coinGeckoData;
   }
