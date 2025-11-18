@@ -12,6 +12,7 @@ import { fetchRavencoinHashrate } from '@/lib/fetchRavencoinData';
 import { fetchZcashHashrate } from '@/lib/fetchZcashData';
 import { fetchBitcoinCashHashrate } from '@/lib/fetchBitcoinCashData';
 import { fetchErgoHashrate } from '@/lib/fetchErgoData';
+import { fetchConfluxHashrate } from '@/lib/fetchConfluxData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 import BackButton from '@/components/BackButton';
@@ -32,13 +33,14 @@ export async function generateStaticParams() {
     { symbol: 'zec' },
     { symbol: 'bch' },
     { symbol: 'erg' },
+    { symbol: 'cfx' },
   ];
 }
 
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, ergoData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, ergoData, confluxData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
@@ -48,6 +50,7 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
       fetchZcashHashrate(),
       fetchBitcoinCashHashrate(),
       fetchErgoHashrate(),
+      fetchConfluxHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
@@ -125,6 +128,13 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         priceChange24h: prices.ergo.change24h || 0,
         marketCap: prices.ergo.marketCap || 0,
       };
+    } else if (symbolUpper === 'CFX') {
+      return {
+        ...confluxData,
+        currentPrice: prices.conflux.price || 0,
+        priceChange24h: prices.conflux.change24h || 0,
+        marketCap: prices.conflux.marketCap || 0,
+      };
     }
 
     return null;
@@ -155,6 +165,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       case 'ZEC': return 'MSol/s'; // Mega-solutions (Equihash)
       case 'BCH': return 'EH/s'; // Exahashes (same as Bitcoin)
       case 'ERG': return 'TH/s'; // Terahashes (Autolykos v2)
+      case 'CFX': return 'TH/s'; // Terahashes (Octopus)
       default: return 'H/s';
     }
   };
@@ -197,6 +208,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       ZEC: { bg: 'from-yellow-600 to-amber-700', icon: '#F4B728' },
       BCH: { bg: 'from-green-500 to-emerald-600', icon: '#8DC351' },
       ERG: { bg: 'from-orange-500 to-red-600', icon: '#FF5722' },
+      CFX: { bg: 'from-cyan-500 to-blue-500', icon: '#00D4FF' },
     };
 
     const config = colors[symbol as keyof typeof colors] || colors.BTC;

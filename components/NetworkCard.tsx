@@ -26,6 +26,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       case 'ZEC': return 'MSol/s';
       case 'BCH': return 'EH/s';
       case 'ERG': return 'TH/s';
+      case 'CFX': return 'TH/s';
       default: return 'H/s';
     }
   };
@@ -42,6 +43,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       case 'KAS': return 250;
       case 'XMR': return 0.6;
       case 'ERG': return 9; // 9 ERG per block
+      case 'CFX': return 0.78; // ~0.78 CFX per block
       default: return 0;
     }
   };
@@ -58,6 +60,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       case 'KAS': return 86400; // 1 sec blocks
       case 'XMR': return 720; // 2 min blocks
       case 'ERG': return 720; // 2 min blocks
+      case 'CFX': return 172800; // 0.5 sec blocks
       default: return 144;
     }
   };
@@ -124,6 +127,9 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       'ERG': (
         <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.18L17.82 8 12 11.82 6.18 8 12 4.18zM5 9.18L11 12.5v6.32L5 15.5V9.18zm14 0v6.32l-6 3.32V12.5l6-3.32z"/>
       ),
+      'CFX': (
+        <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.18L11 12.5v6.32L4 15.5V9.18zm16 0v6.32l-7 3.32V12.5l7-3.32z"/>
+      ),
     };
 
     const colors: Record<string, string> = {
@@ -137,6 +143,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       'ZEC': '#F4B728',
       'BCH': '#8DC351',
       'ERG': '#FF5722',
+      'CFX': '#00D4FF',
     };
 
     return (
