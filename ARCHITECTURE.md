@@ -2,7 +2,7 @@
 
 **Project Name:** bloxchaser (all lowercase - never "BloxChaser")
 **Official Logo:** `/public/logo.svg`
-**Last Updated:** 2025-01-18
+**Last Updated:** 2025-11-24
 
 ---
 
@@ -194,6 +194,12 @@ bloxchaser/
 │   ├── layout.tsx                # Root layout with metadata
 │   ├── about/page.tsx            # About page (/about)
 │   ├── coin/[symbol]/page.tsx    # Dynamic coin detail pages (/coin/btc, /coin/ltc, etc.)
+│   ├── api/
+│   │   ├── hashrate/route.ts     # Real-time network stats API
+│   │   └── history/              # Historical data API
+│   │       ├── route.ts          # GET /api/history (list all coins)
+│   │       └── [symbol]/
+│   │           └── route.ts      # GET /api/history/[symbol] (coin history)
 │   └── legal/
 │       ├── privacy/page.tsx      # Privacy policy
 │       └── terms/page.tsx        # Terms of use
@@ -205,6 +211,21 @@ bloxchaser/
 │   ├── Sparkline.tsx             # Mini charts for trends
 │   ├── BackButton.tsx            # Navigation component
 │   └── WhatsNewModal.tsx         # Feature announcement modal
+├── data/
+│   └── history/                  # Historical data storage (per-coin JSON files)
+│       ├── btc-history.json      # Bitcoin 90-day history
+│       ├── ltc-history.json      # Litecoin 90-day history
+│       ├── xmr-history.json      # Monero 90-day history
+│       ├── kas-history.json      # Kaspa 90-day history
+│       ├── etc-history.json      # Ethereum Classic 90-day history
+│       ├── rvn-history.json      # Ravencoin 90-day history
+│       ├── zec-history.json      # Zcash 90-day history
+│       ├── bch-history.json      # Bitcoin Cash 90-day history
+│       ├── erg-history.json      # Ergo 90-day history
+│       └── cfx-history.json      # Conflux 90-day history
+├── scripts/
+│   ├── fetch-difficulty.mjs      # Collects current data (run every 4 hours)
+│   └── backfill-history.mjs      # One-time 90-day historical backfill
 ├── lib/                          # Data fetching logic
 │   ├── fetchBitcoinData.ts       # BTC hashrate fetcher
 │   ├── fetchLitecoinData.ts      # LTC hashrate fetcher
@@ -216,12 +237,16 @@ bloxchaser/
 │   ├── fetchZcashData.ts         # ZEC hashrate fetcher
 │   ├── fetchBitcoinCashData.ts   # BCH hashrate fetcher
 │   ├── fetchErgoData.ts          # ERG hashrate fetcher
-│   ├── fetchMinerstatData.ts     # Minerstat API (XMR + fallback)
-│   └── fetchPrices.ts            # Price data (CoinGecko → CoinPaprika → Minerstat)
+│   ├── fetchMinerstatData.ts     # Minerstat API (XMR, ERG, CFX + fallback)
+│   ├── fetchPrices.ts            # Price data (CoinGecko → CoinPaprika → CryptoCompare → Minerstat)
+│   └── historicalData.ts         # Historical data reader helper library
 ├── types/
 │   └── index.ts                  # TypeScript interfaces (NetworkStats, HashrateData)
 ├── public/
 │   └── logo.svg                  # Official bloxchaser logo (orange wordmark)
+├── .github/
+│   └── workflows/
+│       └── update-difficulty.yml # GitHub Actions (every 4 hours)
 ├── CLAUDE_UPDATE.md              # Session changelog & guidelines
 ├── ARCHITECTURE.md               # This file - architecture documentation
 └── README.md                     # GitHub repository documentation
@@ -331,14 +356,16 @@ export async function fetchBitcoinHashrate(): Promise<NetworkStats> {
 
 ### 2. Price Fetching Layer (`lib/fetchPrices.ts`)
 
-Centralized price fetching with 3-tier fallback system:
+Centralized price fetching with 4-tier fallback system:
 
 ```
 CoinGecko (Primary)
     ↓ (if fails)
 CoinPaprika (Secondary)
     ↓ (if fails)
-Minerstat (Tertiary - via fetchMinerstatData.ts)
+CryptoCompare (Tertiary - fetches all 11 coins in one call)
+    ↓ (if fails)
+Minerstat (Quaternary - via fetchMinerstatData.ts)
 ```
 
 **Returns:**
@@ -355,6 +382,7 @@ interface CryptoPrices {
   zcash: { price: number; change24h: number; marketCap: number };
   bitcoinCash: { price: number; change24h: number; marketCap: number };
   ergo: { price: number; change24h: number; marketCap: number };
+  conflux: { price: number; change24h: number; marketCap: number };
 }
 ```
 
@@ -714,6 +742,7 @@ const HASHRATE_UNITS = {
   RVN: 'TH/s',     // Terahashes (10^12)
   ZEC: 'MSol/s',   // Mega-solutions (Equihash)
   ERG: 'TH/s',     // Terahashes (10^12)
+  CFX: 'TH/s',     // Terahashes (10^12) - Octopus algorithm
 };
 ```
 
@@ -731,6 +760,7 @@ const BLOCK_REWARDS = {
   RVN: 2500,       // Post-halving
   ZEC: 3.125,      // Post-halving
   ERG: 9,          // 9 ERG per block
+  CFX: 2,          // Current Conflux reward
 };
 ```
 
@@ -748,6 +778,7 @@ const BLOCK_CONFIG = {
   RVN:  { time: 60,   perDay: 1440 },   // 1 minute
   ZEC:  { time: 75,   perDay: 1152 },   // 75 seconds
   ERG:  { time: 120,  perDay: 720 },    // 2 minutes
+  CFX:  { time: 0.5,  perDay: 172800 }, // 0.5 seconds
 };
 ```
 
@@ -765,6 +796,7 @@ const BRAND_COLORS = {
   RVN: '#384182',  // Ravencoin Purple
   ZEC: '#F4B728',  // Zcash Yellow
   ERG: '#FF5722',  // Ergo Orange-Red
+  CFX: '#1A1A2E',  // Conflux Dark Blue
 };
 ```
 
@@ -777,21 +809,23 @@ const BRAND_COLORS = {
 | Coin | Primary API | Hashrate Accuracy | Notes |
 |------|-------------|-------------------|-------|
 | BTC | mempool.space | ✅ Excellent | Real-time mempool data |
-| BCH | blockchair.com | ✅ Excellent | Calculated from difficulty |
-| LTC | chainz.cryptoid.info | ✅ Excellent | Direct blockchain data |
+| BCH | mempool.space | ✅ Excellent | Calculated from difficulty |
+| LTC | litecoinspace.org | ✅ Excellent | Direct blockchain data |
 | DOGE | GetBlock RPC | ✅ Good | Direct node RPC call |
 | XMR | minerstat.com | ✅ Good | Aggregated mining data |
 | KAS | api.kaspa.org | ✅ Excellent | Official Kaspa API |
 | ETC | blockscout.com | ✅ Excellent | Full block explorer |
-| RVN | ravencoin.network | ✅ Good | Official explorer |
+| RVN | blockbook.ravencoin.org | ✅ Good | Official explorer |
 | ZEC | zcashblockexplorer.com | ✅ Good | Community explorer |
 | ERG | minerstat.com | ✅ Good | Special Autolykos calculation |
+| CFX | minerstat.com | ✅ Good | Octopus algorithm data |
 
 ### Price API Fallback Chain
 
 1. **CoinGecko** (Primary) - Fast updates, rate limited during builds
 2. **CoinPaprika** (Secondary) - No API key required, reliable
-3. **Minerstat** (Tertiary) - Includes hashrate data, final fallback
+3. **CryptoCompare** (Tertiary) - Fetches all 11 coins in one call, requires API key
+4. **Minerstat** (Quaternary) - Includes hashrate data, final fallback
 
 ---
 
@@ -900,6 +934,6 @@ Before merging any network addition:
 
 ---
 
-**Last Updated:** 2025-01-18
+**Last Updated:** 2025-11-24
 **Maintained By:** bloxchaser development team
 **Version:** 1.0.0

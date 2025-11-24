@@ -34,7 +34,7 @@ BloxChaser is a comprehensive mining network analytics dashboard that tracks has
 ## Features
 
 ### Core Analytics
-- 📊 **Real-time hashrate tracking** for 10 major PoW cryptocurrencies
+- 📊 **Real-time hashrate tracking** for 11 major PoW cryptocurrencies
 - 📈 **Historical charts** showing 90 days of network data with real blockchain data
 - 🔥 **Trend analysis** - 7d, 30d, 90d hashrate changes with sparkline visualizations
 - ⚡ **Live difficulty tracking** with readable formatting (P/T/G/M units)
@@ -60,21 +60,23 @@ BloxChaser is a comprehensive mining network analytics dashboard that tracks has
 
 | Coin | Symbol | Algorithm | Hashrate Source | Price Source | Unit |
 |------|--------|-----------|-----------------|--------------|------|
-| Bitcoin | BTC | SHA-256 | Mempool.space | CoinGecko / CoinPaprika | EH/s |
-| Ethereum Classic | ETC | Ethash | Blockscout + Minerstat | Blockscout | TH/s |
-| Bitcoin Cash | BCH | SHA-256 | Mempool.space | CoinGecko / CoinPaprika | EH/s |
-| Litecoin | LTC | Scrypt | Litecoinspace.org | CoinGecko / CoinPaprika | TH/s |
-| Monero | XMR | RandomX | Minerstat | CoinGecko / CoinPaprika | GH/s |
-| Kaspa | KAS | kHeavyHash | api.kaspa.org | CoinGecko / CoinPaprika | PH/s |
-| Zcash | ZEC | Equihash | zcashblockexplorer.com | CoinGecko / CoinPaprika | MSol/s |
-| Dogecoin | DOGE | Scrypt | GetBlock RPC | CoinGecko / CoinPaprika | TH/s |
-| Ergo | ERG | Autolykos v2 | ergoplatform.com | CoinGecko / CoinPaprika | TH/s |
-| Ravencoin | RVN | KawPow | Blockbook | CoinGecko / CoinPaprika | TH/s |
+| Bitcoin | BTC | SHA-256 | Mempool.space | CoinGecko / CoinPaprika / CryptoCompare | EH/s |
+| Ethereum Classic | ETC | Etchash | Blockscout + Minerstat | CoinGecko / CoinPaprika / CryptoCompare | TH/s |
+| Bitcoin Cash | BCH | SHA-256 | Mempool.space | CoinGecko / CoinPaprika / CryptoCompare | EH/s |
+| Litecoin | LTC | Scrypt | Litecoinspace.org | CoinGecko / CoinPaprika / CryptoCompare | TH/s |
+| Monero | XMR | RandomX | Minerstat | CoinGecko / CoinPaprika / CryptoCompare | GH/s |
+| Kaspa | KAS | kHeavyHash | api.kaspa.org | CoinGecko / CoinPaprika / CryptoCompare | PH/s |
+| Zcash | ZEC | Equihash | zcashblockexplorer.com | CoinGecko / CoinPaprika / CryptoCompare | MSol/s |
+| Dogecoin | DOGE | Scrypt | GetBlock RPC | CoinGecko / CoinPaprika / CryptoCompare | PH/s |
+| Ergo | ERG | Autolykos v2 | Minerstat | CoinGecko / CoinPaprika / CryptoCompare | TH/s |
+| Ravencoin | RVN | KawPow | Blockbook | CoinGecko / CoinPaprika / CryptoCompare | TH/s |
+| Conflux | CFX | Octopus | Minerstat | CryptoCompare | TH/s |
 
 ### Price Data Fallback Chain
 1. **CoinGecko API** (primary - fastest updates)
 2. **CoinPaprika API** (backup - no API key required)
-3. **Minerstat API** (final fallback)
+3. **CryptoCompare API** (tertiary - fetches all 11 coins in one call)
+4. **Minerstat API** (final fallback)
 
 This ensures financial data is never missing due to API rate limiting or outages.
 
@@ -159,8 +161,12 @@ bloxchaser/
 │   │   └── privacy/
 │   │       └── page.tsx          # Privacy Policy page
 │   ├── api/
-│   │   └── hashrate/
-│   │       └── route.ts          # API endpoint for network stats
+│   │   ├── hashrate/
+│   │   │   └── route.ts          # API endpoint for real-time stats
+│   │   └── history/
+│   │       ├── route.ts          # GET /api/history (list all coins)
+│   │       └── [symbol]/
+│   │           └── route.ts      # GET /api/history/{symbol}
 │   ├── page.tsx                  # Main dashboard page
 │   ├── layout.tsx                # Root layout with metadata
 │   └── globals.css               # Global styles (Tailwind v4)
@@ -172,18 +178,31 @@ bloxchaser/
 │   ├── WhatsNewModal.tsx         # First-visit feature announcement
 │   ├── CoinTabs.tsx              # Financial/Network tabs switcher
 │   └── BackButton.tsx            # Client-side navigation component
+├── data/
+│   └── history/                  # Historical data storage (90 days)
+│       ├── btc-history.json
+│       ├── ltc-history.json
+│       ├── ... (10 coin files)
+│       └── cfx-history.json
+├── scripts/
+│   ├── fetch-difficulty.mjs      # Collects data every 4 hours
+│   └── backfill-history.mjs      # One-time 90-day backfill
 ├── lib/
 │   ├── fetchBitcoinData.ts       # Bitcoin data fetcher (Mempool.space)
 │   ├── fetchLitecoinData.ts      # Litecoin data fetcher (Litecoinspace)
 │   ├── fetchDogecoinData.ts      # Dogecoin data fetcher (GetBlock RPC)
 │   ├── fetchKaspaData.ts         # Kaspa data fetcher (api.kaspa.org)
-│   ├── fetchErgoData.ts          # Ergo data fetcher (ergoplatform.com)
+│   ├── fetchErgoData.ts          # Ergo data fetcher (Minerstat)
 │   ├── fetchEthereumClassicData.ts # ETC data fetcher (Blockscout)
 │   ├── fetchRavencoinData.ts     # Ravencoin data fetcher (Blockbook)
 │   ├── fetchZcashData.ts         # Zcash data fetcher (zcashblockexplorer)
 │   ├── fetchBitcoinCashData.ts   # Bitcoin Cash data fetcher
 │   ├── fetchMinerstatData.ts     # Multi-coin data fetcher (Minerstat)
-│   └── fetchPrices.ts            # Price data fetcher (CoinGecko/CoinPaprika)
+│   ├── fetchPrices.ts            # Price fetcher (CoinGecko/CoinPaprika/CryptoCompare)
+│   └── historicalData.ts         # Historical data reader helper
+├── .github/
+│   └── workflows/
+│       └── update-difficulty.yml # GitHub Actions (every 4 hours)
 ├── types/
 │   └── index.ts                  # TypeScript type definitions
 ├── TERMS_OF_USE.md               # Full Terms of Use document
@@ -192,6 +211,42 @@ bloxchaser/
 ```
 
 ## API Endpoints
+
+### GET /api/history
+Returns a summary of all coins with historical data available.
+
+**Response Format:**
+```json
+{
+  "success": true,
+  "coins": [
+    { "symbol": "BTC", "name": "Bitcoin", "entries": 13141, "lastUpdated": "2025-11-24T..." }
+  ],
+  "supportedCoins": ["BTC", "LTC", "XMR", "DOGE", "KAS", "ETC", "RVN", "ZEC", "BCH", "ERG", "CFX"],
+  "updateFrequency": "Every 4 hours",
+  "apiVersion": "1.0"
+}
+```
+
+### GET /api/history/{symbol}
+Returns full historical data for a specific coin. Supports query parameters:
+- `?days=30` - Limit data to last N days
+- `?format=compact` - Return compact format for charting
+
+**Response Format:**
+```json
+{
+  "success": true,
+  "coin": "BTC",
+  "name": "Bitcoin",
+  "algorithm": "SHA-256",
+  "data": [
+    { "timestamp": 1700000000, "datetime": "2025-...", "hashrate": 725.45, "difficulty": 102290000000000, "price": 98234.56 }
+  ],
+  "totalEntries": 13141,
+  "updateFrequency": "Every 4 hours"
+}
+```
 
 ### GET /api/hashrate
 
@@ -265,6 +320,7 @@ Each card features branded coin logos:
 - **GetBlock RPC**: Public endpoint for Dogecoin
 - **CoinGecko**: Free tier, rate limited (primary price source)
 - **CoinPaprika**: Free tier, 5-minute updates, no API key required (price fallback)
+- **CryptoCompare**: API key required, fetches all 11 coins in one call (tertiary price fallback)
 
 All APIs are used responsibly with appropriate caching (5-minute) to minimize requests and prevent rate limiting.
 
@@ -329,12 +385,16 @@ Contributions are welcome! Feel free to:
 - [x] Dogecoin (DOGE)
 - [x] Ergo (ERG)
 - [x] Ravencoin (RVN)
+- [x] Conflux (CFX)
 - [x] Profit Calculator
 - [x] Sparkline Charts
 - [x] Coin Logo Branding
 - [x] Twitter Share Integration
 - [x] Market Cap Sorting
 - [x] What's New Modal
+- [x] Historical Data API (90 days)
+- [x] Public API Endpoints
+- [x] Automated Data Collection (GitHub Actions)
 
 ### Planned Features 🚀
 - [ ] More PoW networks coming soon
@@ -356,14 +416,14 @@ MIT License - see LICENSE file for details
 - Mempool.space for Bitcoin & Bitcoin Cash hashrate data
 - Litecoinspace.org for Litecoin network data
 - api.kaspa.org for official Kaspa hashrate API
-- api.ergoplatform.com for official Ergo blockchain API
+- Minerstat for Ergo, Conflux, Monero network data and historical data API
 - Blockscout for Ethereum Classic blockchain data
 - Blockbook for Ravencoin blockchain data & historical blocks
 - zcashblockexplorer.com for Zcash network data
-- Minerstat for multi-coin network data and price backup
 - GetBlock for Dogecoin RPC access
 - CoinGecko for primary price data
 - CoinPaprika for reliable price fallback (no API key required)
+- CryptoCompare for comprehensive price data (11 coins in one API call)
 
 ---
 

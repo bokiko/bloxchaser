@@ -21,7 +21,103 @@ This document summarizes all changes made to bloxchaser during recent developmen
 
 ---
 
-## Latest Session: Data Integrity & Architecture Documentation (2025-01-18)
+## Latest Session: Historical Data System & Conflux Integration (2025-11-24)
+
+### 1. **Conflux (CFX) Network Integration**
+- **Added Conflux** as the 11th supported PoW network
+- **API Source**: Minerstat API for hashrate/difficulty
+- **Algorithm**: Octopus
+- **Block time**: 0.5 seconds
+- **Price Integration**: CryptoCompare API (primary), with CoinGecko/CoinPaprika fallback
+
+### 2. **CryptoCompare Integration for ALL Coins**
+- **Added CryptoCompare API** as comprehensive third-tier price fallback
+- **New fallback chain**: CoinGecko -> CoinPaprika -> CryptoCompare -> Zeros
+- **Single API call** fetches prices for all 11 coins simultaneously
+- **Environment variable**: `CRYPTOCOMPARE_API_KEY` required
+- **File modified**: `/lib/fetchPrices.ts` (lines 269-373)
+
+### 3. **Historical Data Collection System**
+- **Purpose**: Store hashrate/difficulty history for all coins independently
+- **Storage**: Separate JSON files per coin in `/data/history/`
+- **Files created**:
+  - `btc-history.json`, `ltc-history.json`, `xmr-history.json`
+  - `kas-history.json`, `etc-history.json`, `rvn-history.json`
+  - `zec-history.json`, `bch-history.json`, `erg-history.json`
+  - `cfx-history.json` (10 coins total, DOGE excluded - no Minerstat history)
+
+### 4. **90-Day Historical Backfill**
+- **Script**: `/scripts/backfill-history.mjs`
+- **Data source**: Minerstat Historical API (`/v2/coins-history?period=90d`)
+- **Total entries**: 131,410 data points (13,141 per coin for 10 coins)
+- **Data format**: `{ t: timestamp, d: difficulty, h: hashrate, p: price }`
+- **Run once** to bootstrap historical data
+
+### 5. **Automated Data Collection (GitHub Actions)**
+- **Workflow**: `/.github/workflows/update-difficulty.yml`
+- **Schedule**: Every 4 hours (cron: `0 */4 * * *`)
+- **Script**: `/scripts/fetch-difficulty.mjs`
+- **Auto-commit**: Pushes updated history files to repository
+- **Note**: User must manually push workflow file (OAuth scope limitation)
+
+### 6. **Public History API Endpoints**
+- **GET /api/history** - Lists all coins with data summary
+  - Returns: coin list, entry counts, last updated timestamps
+- **GET /api/history/[symbol]** - Full history for specific coin
+  - Parameters: `?days=30` (limit data), `?format=compact` (for charting)
+  - Returns: Full historical data with timestamps, hashrate, difficulty, price
+- **Caching**: 5-minute s-maxage with stale-while-revalidate
+- **CORS**: Enabled for public API access
+
+### 7. **Historical Data Helper Library**
+- **File**: `/lib/historicalData.ts`
+- **Functions**:
+  - `getCoinHistory(symbol)` - Get full history for a coin
+  - `getHistoricalHashrate(symbol, days)` - Get hashrate data for charting
+  - `getHashrateChange(symbol, days)` - Calculate % change over period
+  - `getCurrentStats(symbol)` - Get latest stats with 7d/30d/90d changes
+  - `getAllCoinsSummary()` - Summary for API listing
+
+### New Files Created
+```
+scripts/
+├── fetch-difficulty.mjs     # Collects current data every 4 hours
+└── backfill-history.mjs     # One-time 90-day historical backfill
+
+data/
+└── history/                 # Historical data storage
+    ├── btc-history.json
+    ├── ltc-history.json
+    ├── xmr-history.json
+    ├── kas-history.json
+    ├── etc-history.json
+    ├── rvn-history.json
+    ├── zec-history.json
+    ├── bch-history.json
+    ├── erg-history.json
+    └── cfx-history.json
+
+lib/
+└── historicalData.ts        # Helper library for reading history
+
+app/api/history/
+├── route.ts                 # GET /api/history
+└── [symbol]/
+    └── route.ts             # GET /api/history/[symbol]
+
+.github/workflows/
+└── update-difficulty.yml    # GitHub Actions (needs manual push)
+```
+
+### Environment Variables Required
+```bash
+# .env.local
+CRYPTOCOMPARE_API_KEY=your_api_key_here
+```
+
+---
+
+## Previous Session: Data Integrity & Architecture Documentation (2025-01-18)
 
 ### 1. **Fixed Dogecoin Hashrate Unit Conversion** ✅
 - **Issue**: Dogecoin showing 3494 TH/s instead of 3.49 PH/s
@@ -180,26 +276,27 @@ return coins.sort((a, b) => b.marketCap - a.marketCap);
 
 ---
 
-## Current Network Coverage (10 Total)
+## Current Network Coverage (11 Total)
 
 | Rank | Coin | Symbol | Algorithm | Hashrate Unit | Status |
 |------|------|--------|-----------|---------------|--------|
 | 1 | Bitcoin | BTC | SHA-256 | EH/s | ✅ Live |
-| 2 | Ethereum Classic | ETC | Ethash | TH/s | ✅ Live |
+| 2 | Ethereum Classic | ETC | Etchash | TH/s | ✅ Live |
 | 3 | Bitcoin Cash | BCH | SHA-256 | EH/s | ✅ Live |
 | 4 | Litecoin | LTC | Scrypt | TH/s | ✅ Live |
 | 5 | Monero | XMR | RandomX | GH/s | ✅ Live |
 | 6 | Kaspa | KAS | kHeavyHash | PH/s | ✅ Live |
 | 7 | Zcash | ZEC | Equihash | MSol/s | ✅ Live |
-| 8 | Dogecoin | DOGE | Scrypt | TH/s | ✅ Live |
+| 8 | Dogecoin | DOGE | Scrypt | PH/s | ✅ Live |
 | 9 | Ergo | ERG | Autolykos v2 | TH/s | ✅ Live |
 | 10 | Ravencoin | RVN | KawPow | TH/s | ✅ Live |
+| 11 | Conflux | CFX | Octopus | TH/s | ✅ Live |
 
 ---
 
 ## Features Available Per Coin
 
-All 10 networks support:
+All 11 networks support:
 - ✅ Real-time hashrate tracking
 - ✅ Difficulty monitoring
 - ✅ Price display (USD)
@@ -248,10 +345,11 @@ All 10 networks support:
 
 ## API Fallback Strategy
 
-Price fetching uses a robust 3-tier fallback:
+Price fetching uses a robust 4-tier fallback:
 1. **Primary**: CoinGecko API (fastest updates)
 2. **Secondary**: CoinPaprika API (no key required)
-3. **Tertiary**: Minerstat (final fallback with hashrate data)
+3. **Tertiary**: CryptoCompare API (fetches all 11 coins in one call)
+4. **Quaternary**: Minerstat (final fallback with hashrate data)
 
 Rate limiting during builds is expected and handled gracefully.
 
@@ -259,9 +357,15 @@ Rate limiting during builds is expected and handled gracefully.
 
 ## Next Steps (Suggested)
 
+Completed in this session:
+- [x] Historical data collection system (90 days)
+- [x] Public API endpoints for historical data
+- [x] CryptoCompare integration for all coins
+- [x] Conflux (CFX) network support
+- [x] Automated data collection (GitHub Actions)
+
 Potential future enhancements:
 - [ ] More PoW networks coming soon
-- [ ] Historical price charts (7d/30d/90d)
 - [ ] Mining pool statistics
 - [ ] Profitability rankings
 - [ ] Email alerts for hashrate/difficulty changes
@@ -312,16 +416,23 @@ Potential future enhancements:
 
 | Network | Primary Source | Hashrate | Difficulty | Price |
 |---------|---------------|----------|------------|-------|
-| BTC | blockchain.info | ✅ | ✅ | CoinGecko |
-| LTC | chainz.cryptoid.info | ✅ | ✅ | CoinGecko |
-| XMR | Minerstat | ✅ | ✅ | CoinGecko |
-| DOGE | dogechain.info | ✅ | ✅ | CoinGecko |
-| KAS | kas.fyi | ✅ | ✅ | CoinGecko |
-| ETC | blockscout.com | ✅ | ✅ | CoinGecko |
-| RVN | ravencoin.network | ✅ | ✅ | CoinGecko |
-| ZEC | zcashblockexplorer.com | ✅ | ✅ | CoinGecko |
-| BCH | blockchain.info | ✅ | ✅ | CoinGecko |
-| ERG | ergoplatform.com | ✅ | ✅ | CoinGecko |
+| BTC | mempool.space | ✅ | ✅ | CoinGecko/CryptoCompare |
+| LTC | litecoinspace.org | ✅ | ✅ | CoinGecko/CryptoCompare |
+| XMR | Minerstat | ✅ | ✅ | CoinGecko/CryptoCompare |
+| DOGE | GetBlock RPC | ✅ | ✅ | CoinGecko/CryptoCompare |
+| KAS | api.kaspa.org | ✅ | ✅ | CoinGecko/CryptoCompare |
+| ETC | blockscout.com | ✅ | ✅ | CoinGecko/CryptoCompare |
+| RVN | blockbook.ravencoin.org | ✅ | ✅ | CoinGecko/CryptoCompare |
+| ZEC | zcashblockexplorer.com | ✅ | ✅ | CoinGecko/CryptoCompare |
+| BCH | mempool.space | ✅ | ✅ | CoinGecko/CryptoCompare |
+| ERG | Minerstat | ✅ | ✅ | CoinGecko/CryptoCompare |
+| CFX | Minerstat | ✅ | ✅ | CryptoCompare |
+
+### Historical Data Sources
+| Network | History Source | Data Period |
+|---------|---------------|-------------|
+| ALL | Minerstat API | 90 days |
+| /api/history | Local JSON files | Continuous |
 
 ---
 
@@ -334,6 +445,25 @@ Potential future enhancements:
 ---
 
 ## Session History
+
+### Session 4: Historical Data System & Conflux (2025-11-24)
+- **Duration**: ~120 minutes
+- **Key Achievements**:
+  - ✅ Added Conflux (CFX) network support (11th coin)
+  - ✅ Integrated CryptoCompare API for all 11 coins
+  - ✅ Created historical data collection system
+  - ✅ Backfilled 90 days of data (131,410 entries)
+  - ✅ Built public API endpoints for historical data
+  - ✅ Created GitHub Actions workflow for automated updates
+- **Files Created**: 14 new files
+  - `scripts/fetch-difficulty.mjs`
+  - `scripts/backfill-history.mjs`
+  - `lib/historicalData.ts`
+  - `app/api/history/route.ts`
+  - `app/api/history/[symbol]/route.ts`
+  - `.github/workflows/update-difficulty.yml`
+  - 10 history JSON files in `data/history/`
+- **Files Modified**: `lib/fetchPrices.ts` (CryptoCompare integration)
 
 ### Session 3: Data Integrity & Architecture (2025-01-18)
 - **Duration**: ~90 minutes
@@ -408,7 +538,7 @@ H/s (base)
 
 ---
 
-*Last Updated: 2025-01-18*
-*Total Sessions: 3*
-*Total Commits: 8*
-*Networks Supported: 10 (all verified accurate)*
+*Last Updated: 2025-11-24*
+*Total Sessions: 4*
+*Networks Supported: 11 (all verified accurate)*
+*Historical Data Points: 131,410 entries across 10 coins*
