@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { HashrateData, NetworkStats } from '@/types';
 
-const GETBLOCK_RPC = 'https://go.getblock.io/3c7c28e711814d728754a606a1947ce3';
+const GETBLOCK_API_KEY = process.env.GETBLOCK_API_KEY || '';
+const GETBLOCK_RPC = GETBLOCK_API_KEY ? `https://go.getblock.io/${GETBLOCK_API_KEY}` : '';
 
 // Generate realistic 90 days of historical data based on current values
 function generateHistoricalData(currentHashrate: number, currentDifficulty: number) {
