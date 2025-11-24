@@ -266,6 +266,55 @@ async function fetchConfluxFromCryptoCompare(): Promise<CryptoPrice | null> {
   }
 }
 
+// CryptoCompare fallback for ALL coins
+async function fetchFromCryptoCompare(): Promise<CryptoPrices | null> {
+  try {
+    if (!CRYPTOCOMPARE_API_KEY) {
+      console.log('CryptoCompare API key not configured for full fetch');
+      return null;
+    }
+
+    const response = await axios.get(
+      `${CRYPTOCOMPARE_API}/data/pricemultifull`,
+      {
+        params: { fsyms: 'BTC,LTC,XMR,DOGE,KAS,ETC,RVN,ZEC,BCH,ERG,CFX', tsyms: 'USD' },
+        headers: { authorization: `Apikey ${CRYPTOCOMPARE_API_KEY}` },
+        timeout: 10000,
+      }
+    );
+
+    const raw = response.data.RAW;
+
+    const extractCoin = (symbol: string): CryptoPrice => {
+      if (raw[symbol]?.USD) {
+        return {
+          price: raw[symbol].USD.PRICE || 0,
+          change24h: raw[symbol].USD.CHANGEPCT24HOUR || 0,
+          marketCap: raw[symbol].USD.MKTCAP || 0,
+        };
+      }
+      return { price: 0, change24h: 0, marketCap: 0 };
+    };
+
+    return {
+      bitcoin: extractCoin('BTC'),
+      litecoin: extractCoin('LTC'),
+      monero: extractCoin('XMR'),
+      dogecoin: extractCoin('DOGE'),
+      kaspa: extractCoin('KAS'),
+      ethereumClassic: extractCoin('ETC'),
+      ravencoin: extractCoin('RVN'),
+      zcash: extractCoin('ZEC'),
+      bitcoinCash: extractCoin('BCH'),
+      ergo: extractCoin('ERG'),
+      conflux: extractCoin('CFX'),
+    };
+  } catch (error) {
+    console.error('CryptoCompare API failed:', error);
+    return null;
+  }
+}
+
 export async function fetchCryptoPrices(): Promise<CryptoPrices> {
   // Fetch both sources in parallel (CoinGecko for most coins, CoinPaprika for Conflux)
   console.log('Attempting to fetch prices from CoinGecko and CoinPaprika...');
@@ -313,6 +362,14 @@ export async function fetchCryptoPrices(): Promise<CryptoPrices> {
   if (coinPaprikaData) {
     console.log('✅ Successfully fetched prices from CoinPaprika (fallback)');
     return coinPaprikaData;
+  }
+
+  // Try CryptoCompare as third-tier fallback for ALL coins
+  console.log('Attempting CryptoCompare fallback for all coins...');
+  const cryptoCompareData = await fetchFromCryptoCompare();
+  if (cryptoCompareData) {
+    console.log('✅ Successfully fetched prices from CryptoCompare (fallback for all coins)');
+    return cryptoCompareData;
   }
 
   // Final fallback: return zeros (Minerstat will be used in the data merge layer)
