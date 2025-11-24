@@ -1,0 +1,17 @@
+{
+  "coin": "CFX",
+  "name": "Conflux",
+  "algorithm": "Octopus",
+  "blockTime": 0.5,
+  "dataStarted": "2025-11-24T03:51:53.979Z",
+  "lastUpdated": "2025-11-24T03:51:53.978Z",
+  "totalEntries": 1,
+  "data": [
+    {
+      "t": 1763956313,
+      "d": 1248197333932,
+      "h": 2496394667864,
+      "p": 0.081728201749192
+    }
+  ]
+}

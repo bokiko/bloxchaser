@@ -1,0 +1,17 @@
+{
+  "coin": "ETC",
+  "name": "Ethereum Classic",
+  "algorithm": "Etchash",
+  "blockTime": 13,
+  "dataStarted": "2025-11-24T03:51:53.979Z",
+  "lastUpdated": "2025-11-24T03:51:53.978Z",
+  "totalEntries": 1,
+  "data": [
+    {
+      "t": 1763956313,
+      "d": 3960443022933732,
+      "h": 296484729969586,
+      "p": 13.863208855301
+    }
+  ]
+}

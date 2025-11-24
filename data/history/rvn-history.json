@@ -1,0 +1,17 @@
+{
+  "coin": "RVN",
+  "name": "Ravencoin",
+  "algorithm": "KAWPOW",
+  "blockTime": 60,
+  "dataStarted": "2025-11-24T03:51:53.979Z",
+  "lastUpdated": "2025-11-24T03:51:53.978Z",
+  "totalEntries": 1,
+  "data": [
+    {
+      "t": 1763956313,
+      "d": 64889,
+      "h": 4644935547836,
+      "p": 0.0081526210023414
+    }
+  ]
+}

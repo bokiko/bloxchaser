@@ -1,0 +1,17 @@
+{
+  "coin": "ERG",
+  "name": "Ergo",
+  "algorithm": "Autolykos2",
+  "blockTime": 120,
+  "dataStarted": "2025-11-24T03:51:53.979Z",
+  "lastUpdated": "2025-11-24T03:51:53.978Z",
+  "totalEntries": 1,
+  "data": [
+    {
+      "t": 1763956313,
+      "d": 443747431088130,
+      "h": 3.792713086223e+24,
+      "p": 0.6353464332502
+    }
+  ]
+}

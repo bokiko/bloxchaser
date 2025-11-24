@@ -1,0 +1,17 @@
+{
+  "coin": "KAS",
+  "name": "Kaspa",
+  "algorithm": "kHeavyHash",
+  "blockTime": 1,
+  "dataStarted": "2025-11-24T03:51:53.979Z",
+  "lastUpdated": "2025-11-24T03:51:53.978Z",
+  "totalEntries": 1,
+  "data": [
+    {
+      "t": 1763956313,
+      "d": 60625548602840000,
+      "h": 2.6038474855126e+26,
+      "p": 0.0411508587953
+    }
+  ]
+}

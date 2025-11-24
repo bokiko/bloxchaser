@@ -3,10 +3,12 @@
 /**
  * Fetch Difficulty Script
  *
- * This script fetches current difficulty data for all coins from Minerstat API
- * and appends it to the difficulty-history.json file.
+ * Fetches current difficulty/hashrate data for all coins from Minerstat API
+ * and saves to separate JSON files per coin.
  *
  * Run by GitHub Actions every 4 hours.
+ *
+ * Output: data/history/{symbol}-history.json
  */
 
 import fs from 'fs';
@@ -18,26 +20,23 @@ const __dirname = path.dirname(__filename);
 
 const MINERSTAT_API = 'https://api.minerstat.com/v2/coins';
 
-// Coin symbols to fetch
-const COINS = ['BTC', 'LTC', 'XMR', 'DOGE', 'KAS', 'ETC', 'RVN', 'ZEC', 'BCH', 'ERG', 'CFX'];
-
-// Hashrate calculation formulas for each algorithm
-const HASHRATE_FORMULAS = {
-  BTC: (diff) => (diff * Math.pow(2, 32)) / 600,           // SHA-256, 10 min blocks
-  LTC: (diff) => (diff * Math.pow(2, 32)) / 150,           // Scrypt, 2.5 min blocks
-  XMR: (diff) => diff / 120,                                // RandomX, 2 min blocks
-  DOGE: (diff) => (diff * Math.pow(2, 32)) / 60,           // Scrypt, 1 min blocks
-  KAS: (diff) => diff,                                      // kHeavyHash, 1 sec blocks
-  ETC: (diff) => diff / 13,                                 // Etchash, 13 sec blocks
-  RVN: (diff) => diff / 60,                                 // KAWPOW, 1 min blocks
-  ZEC: (diff) => (diff * 8192) / 75,                        // Equihash, 75 sec blocks
-  BCH: (diff) => (diff * Math.pow(2, 32)) / 600,           // SHA-256, 10 min blocks
-  ERG: (diff) => diff / 120,                                // Autolykos2, 2 min blocks
-  CFX: (diff) => diff * 2,                                  // Octopus, 0.5 sec blocks
+// Coin configurations
+const COINS = {
+  BTC: { name: 'Bitcoin', algorithm: 'SHA-256', blockTime: 600 },
+  LTC: { name: 'Litecoin', algorithm: 'Scrypt', blockTime: 150 },
+  XMR: { name: 'Monero', algorithm: 'RandomX', blockTime: 120 },
+  DOGE: { name: 'Dogecoin', algorithm: 'Scrypt', blockTime: 60 },
+  KAS: { name: 'Kaspa', algorithm: 'kHeavyHash', blockTime: 1 },
+  ETC: { name: 'Ethereum Classic', algorithm: 'Etchash', blockTime: 13 },
+  RVN: { name: 'Ravencoin', algorithm: 'KAWPOW', blockTime: 60 },
+  ZEC: { name: 'Zcash', algorithm: 'Equihash', blockTime: 75 },
+  BCH: { name: 'Bitcoin Cash', algorithm: 'SHA-256', blockTime: 600 },
+  ERG: { name: 'Ergo', algorithm: 'Autolykos2', blockTime: 120 },
+  CFX: { name: 'Conflux', algorithm: 'Octopus', blockTime: 0.5 },
 };
 
 async function fetchFromMinerstat() {
-  const coinList = COINS.join(',');
+  const coinList = Object.keys(COINS).join(',');
   const url = `${MINERSTAT_API}?list=${coinList}`;
 
   console.log(`Fetching from: ${url}`);
@@ -46,7 +45,6 @@ async function fetchFromMinerstat() {
     headers: {
       'User-Agent': 'BloxChaser/1.0 (https://bloxchaser.vercel.app)',
     },
-    timeout: 30000,
   });
 
   if (!response.ok) {
@@ -56,33 +54,54 @@ async function fetchFromMinerstat() {
   return await response.json();
 }
 
-function calculateHashrate(symbol, difficulty) {
-  const formula = HASHRATE_FORMULAS[symbol];
-  if (!formula) {
-    console.warn(`No hashrate formula for ${symbol}`);
-    return 0;
+function getHistoryPath(symbol) {
+  return path.join(__dirname, '..', 'data', 'history', `${symbol.toLowerCase()}-history.json`);
+}
+
+function readCoinHistory(symbol) {
+  const filePath = getHistoryPath(symbol);
+
+  try {
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.warn(`Could not read history for ${symbol}:`, error.message);
   }
-  return formula(difficulty);
+
+  // Return new structure if file doesn't exist
+  const coinConfig = COINS[symbol];
+  return {
+    coin: symbol,
+    name: coinConfig?.name || symbol,
+    algorithm: coinConfig?.algorithm || 'Unknown',
+    blockTime: coinConfig?.blockTime || 0,
+    dataStarted: new Date().toISOString(),
+    lastUpdated: null,
+    totalEntries: 0,
+    data: [],
+  };
+}
+
+function writeCoinHistory(symbol, history) {
+  const filePath = getHistoryPath(symbol);
+  fs.writeFileSync(filePath, JSON.stringify(history, null, 2));
 }
 
 async function main() {
-  const historyPath = path.join(__dirname, '..', 'data', 'difficulty-history.json');
+  const historyDir = path.join(__dirname, '..', 'data', 'history');
 
   console.log('=== BloxChaser Difficulty Collector ===');
   console.log(`Time: ${new Date().toISOString()}`);
-  console.log(`History file: ${historyPath}`);
+  console.log(`History directory: ${historyDir}`);
 
-  // Read existing history
-  let history;
-  try {
-    const data = fs.readFileSync(historyPath, 'utf-8');
-    history = JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading history file:', error.message);
-    process.exit(1);
+  // Ensure directory exists
+  if (!fs.existsSync(historyDir)) {
+    fs.mkdirSync(historyDir, { recursive: true });
   }
 
-  // Fetch current difficulty data
+  // Fetch current data from Minerstat
   let minerstatData;
   try {
     minerstatData = await fetchFromMinerstat();
@@ -101,45 +120,50 @@ async function main() {
   for (const coin of minerstatData) {
     const symbol = coin.coin;
 
-    if (!COINS.includes(symbol)) {
+    if (!COINS[symbol]) {
       continue;
     }
 
-    const difficulty = coin.difficulty;
-    const networkHashrate = coin.network_hashrate;
-    const calculatedHashrate = calculateHashrate(symbol, difficulty);
+    // Skip invalid data
+    if (coin.difficulty < 0 || coin.network_hashrate < 0) {
+      console.log(`${symbol}: Skipping (invalid data)`);
+      continue;
+    }
 
-    // Create entry with both difficulty and hashrate for verification
+    // Read existing history
+    const history = readCoinHistory(symbol);
+
+    // Create new entry
     const entry = {
       t: timestamp,                    // Unix timestamp
-      d: difficulty,                   // Difficulty from blockchain
-      h: networkHashrate,              // Hashrate from API (for verification)
-      c: calculatedHashrate,           // Calculated hashrate (for verification)
+      d: coin.difficulty,              // Difficulty from blockchain
+      h: coin.network_hashrate,        // Hashrate (H/s)
+      p: coin.price || 0,              // Price in USD
     };
 
     // Append to history
-    if (!history[symbol]) {
-      history[symbol] = [];
-    }
-    history[symbol].push(entry);
+    history.data.push(entry);
+    history.lastUpdated = dateStr;
+    history.totalEntries = history.data.length;
+
+    // Write back
+    writeCoinHistory(symbol, history);
     updated++;
 
-    console.log(`${symbol}: diff=${difficulty.toExponential(2)}, hash=${networkHashrate.toExponential(2)}, calc=${calculatedHashrate.toExponential(2)}`);
+    // Calculate hashrate in readable format
+    const hashrate = coin.network_hashrate;
+    let hashrateStr;
+    if (hashrate >= 1e18) hashrateStr = (hashrate / 1e18).toFixed(2) + ' EH/s';
+    else if (hashrate >= 1e15) hashrateStr = (hashrate / 1e15).toFixed(2) + ' PH/s';
+    else if (hashrate >= 1e12) hashrateStr = (hashrate / 1e12).toFixed(2) + ' TH/s';
+    else if (hashrate >= 1e9) hashrateStr = (hashrate / 1e9).toFixed(2) + ' GH/s';
+    else if (hashrate >= 1e6) hashrateStr = (hashrate / 1e6).toFixed(2) + ' MH/s';
+    else hashrateStr = hashrate.toFixed(2) + ' H/s';
+
+    console.log(`${symbol}: ${hashrateStr}, diff=${coin.difficulty.toExponential(2)}, entries=${history.totalEntries}`);
   }
 
-  // Update metadata
-  history.metadata.lastUpdated = dateStr;
-
-  // Write updated history
-  try {
-    fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
-    console.log(`\nUpdated ${updated} coins at ${dateStr}`);
-    console.log(`Total entries per coin: ${history.BTC?.length || 0}`);
-  } catch (error) {
-    console.error('Error writing history file:', error.message);
-    process.exit(1);
-  }
-
+  console.log(`\n✅ Updated ${updated} coins at ${dateStr}`);
   console.log('=== Done ===');
 }
 
