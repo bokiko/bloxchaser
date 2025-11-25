@@ -4,8 +4,8 @@
   "algorithm": "KAWPOW",
   "blockTime": 60,
   "dataStarted": "2025-05-25T13:20:03.000Z",
-  "lastUpdated": "2025-11-25T12:22:20.041Z",
-  "totalEntries": 13149,
+  "lastUpdated": "2025-11-25T16:14:34.494Z",
+  "totalEntries": 13150,
   "source": "Minerstat API (backfill)",
   "data": [
     {
@@ -78901,6 +78901,12 @@
       "d": 65713,
       "h": 4703919765367,
       "p": 0.0080920283781817
+    },
+    {
+      "t": 1764087274,
+      "d": 57868,
+      "h": 4142352791415,
+      "p": 0.0080565084765511
     }
   ]
 }
