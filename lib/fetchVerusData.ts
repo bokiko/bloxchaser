@@ -2,7 +2,6 @@ import axios from 'axios';
 import { HashrateData, NetworkStats } from '@/types';
 
 const VERUS_EXPLORER_API = 'https://explorer.verus.io/api';
-const LUCKPOOL_API = 'https://luckpool.net/verus';
 
 // Generate realistic 90 days of historical data based on current values
 function generateHistoricalData(currentHashrate: number, currentDifficulty: number) {
@@ -28,20 +27,16 @@ function generateHistoricalData(currentHashrate: number, currentDifficulty: numb
 
 export async function fetchVerusHashrate(): Promise<NetworkStats> {
   try {
-    // Fetch difficulty from official Verus Explorer
-    const explorerResponse = await axios.get(`${VERUS_EXPLORER_API}/status`, {
-      timeout: 10000,
-    });
+    // Fetch difficulty and hashrate from official Verus Explorer
+    const [statusResponse, hashrateResponse] = await Promise.all([
+      axios.get(`${VERUS_EXPLORER_API}/status`, { timeout: 10000 }),
+      axios.get(`${VERUS_EXPLORER_API}/getnetworkhashps`, { timeout: 10000 }),
+    ]);
 
-    // Fetch network hashrate from LuckPool (they show network stats, not just pool stats)
-    const luckpoolResponse = await axios.get(`${LUCKPOOL_API}/network`, {
-      timeout: 10000,
-    });
+    const explorerData = statusResponse.data;
+    const networkHashrate = hashrateResponse.data; // Returns hashrate in H/s
 
-    const explorerData = explorerResponse.data;
-    const networkData = luckpoolResponse.data;
-
-    // Parse difficulty (comes as string like "8.33252085 T")
+    // Parse difficulty (comes as string like "4.11285412 T")
     const difficultyStr = explorerData.info.difficulty;
     let currentDifficulty: number;
 
@@ -56,9 +51,8 @@ export async function fetchVerusHashrate(): Promise<NetworkStats> {
       currentDifficulty = parseFloat(difficultyStr);
     }
 
-    // Get hashrate from LuckPool network stats (in sols/s, convert to TH/s)
-    // sols is the raw hashrate in solutions per second
-    const currentHashrate = networkData.sols / 1e12; // Convert to TH/s
+    // Convert hashrate from H/s to TH/s
+    const currentHashrate = networkHashrate / 1e12; // Convert H/s to TH/s
 
     // Generate 90 days of historical data
     const historicalData = generateHistoricalData(currentHashrate, currentDifficulty);

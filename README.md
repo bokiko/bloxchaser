@@ -195,7 +195,7 @@ bloxchaser/
 | RVN | Blockbook |
 | ZEC | zcashblockexplorer.com |
 | XMR, ERG, CFX | Minerstat |
-| VRSC | Verus Explorer + LuckPool |
+| VRSC | Verus Explorer (official) |
 
 ### Price Data (4-tier fallback)
 1. **CoinGecko** - Primary

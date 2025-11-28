@@ -30,14 +30,14 @@ This document summarizes all changes made to bloxchaser during recent developmen
 - **Block reward**: 3 VRSC per block
 - **Hashrate unit**: TH/s (Terahashes per second)
 
-### 2. **Data Sources - Official + Fallback**
-- **Primary source**: Official Verus Explorer API (`https://explorer.verus.io/api/status`) for difficulty
-- **Secondary source**: LuckPool API (`https://luckpool.net/verus/network`) for network hashrate
+### 2. **Data Sources - Official Only**
+- **Hashrate**: Official Verus Explorer API (`/api/getnetworkhashps`) - Returns network hashrate in H/s
+- **Difficulty**: Official Verus Explorer API (`/api/status`) - Returns difficulty with unit (e.g., "4.11 T")
 - **Price source**: CoinGecko/CoinPaprika/CryptoCompare 4-tier fallback system
-- **Design principle**: Direct network data over 3rd-party aggregators (as requested)
+- **Design principle**: 100% official network data, no 3rd-party aggregators
 
 ### 3. **Implementation Files Created/Modified**
-- **Created**: `/lib/fetchVerusData.ts` - Fetches real-time difficulty from Verus Explorer and hashrate from LuckPool
+- **Created**: `/lib/fetchVerusData.ts` - Fetches real-time difficulty and hashrate from official Verus Explorer API
 - **Modified**: `/lib/fetchPrices.ts` - Added VRSC to all price fetching functions (CoinGecko, CoinPaprika, CryptoCompare)
 - **Modified**: `/app/page.tsx` - Added Verus to main dashboard with price integration
 - **Modified**: `/app/coin/[symbol]/page.tsx` - Added VRSC to coin detail pages
