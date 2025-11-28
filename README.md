@@ -105,7 +105,7 @@ Whether you're a solo miner checking network health, a mining farm monitoring tr
 
 - **Live Dashboard**: [bloxchaser.com](https://bloxchaser.com)
 - **API Documentation**: [See below](#api-endpoints)
-- **Twitter**: [@blxchaser](https://twitter.com/blxchaser)
+- **Twitter**: [@bloxchaser](https://twitter.com/bloxchaser)
 
 ---
 
@@ -298,6 +298,14 @@ Contributions welcome! Feel free to:
 
 ---
 
+## Team
+
+Built by:
+- [@bokiko_io](https://twitter.com/bokiko_io)
+- [@cloudbasedme](https://twitter.com/cloudbasedme)
+
+---
+
 ## Acknowledgments
 
 Data provided by:
@@ -317,5 +325,5 @@ MIT License - see LICENSE file for details
 <div align="center">
   <strong>Built for miners, by miners.</strong>
   <br><br>
-  <a href="https://bloxchaser.com">bloxchaser.com</a> | <a href="https://twitter.com/blxchaser">@blxchaser</a>
+  <a href="https://bloxchaser.com">bloxchaser.com</a> | <a href="https://twitter.com/bloxchaser">@bloxchaser</a>
 </div>
