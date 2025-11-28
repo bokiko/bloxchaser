@@ -13,6 +13,7 @@ import { fetchZcashHashrate } from '@/lib/fetchZcashData';
 import { fetchBitcoinCashHashrate } from '@/lib/fetchBitcoinCashData';
 import { fetchErgoHashrate } from '@/lib/fetchErgoData';
 import { fetchConfluxHashrate } from '@/lib/fetchConfluxData';
+import { fetchVerusHashrate } from '@/lib/fetchVerusData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 import BackButton from '@/components/BackButton';
@@ -34,13 +35,14 @@ export async function generateStaticParams() {
     { symbol: 'bch' },
     { symbol: 'erg' },
     { symbol: 'cfx' },
+    { symbol: 'vrsc' },
   ];
 }
 
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
     // Fetch all data sources in parallel
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, ergoData, confluxData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, ergoData, confluxData, verusData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate(),
       fetchLitecoinHashrate(),
       fetchDogecoinHashrate(),
@@ -51,6 +53,7 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
       fetchBitcoinCashHashrate(),
       fetchErgoHashrate(),
       fetchConfluxHashrate(),
+      fetchVerusHashrate(),
       fetchMinerstatCoins(),
       fetchCryptoPrices(),
     ]);
@@ -135,6 +138,13 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
         currentPrice: confluxMinerstatData?.currentPrice || prices.conflux.price || 0,
         priceChange24h: prices.conflux.change24h || 0,
         marketCap: prices.conflux.marketCap || 0,
+      };
+    } else if (symbolUpper === 'VRSC') {
+      return {
+        ...verusData,
+        currentPrice: prices.verus.price || 0,
+        priceChange24h: prices.verus.change24h || 0,
+        marketCap: prices.verus.marketCap || 0,
       };
     }
 

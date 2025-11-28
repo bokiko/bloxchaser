@@ -29,7 +29,7 @@
 
 ## What is bloxchaser?
 
-**bloxchaser** is a free, real-time dashboard for cryptocurrency miners. It tracks network hashrate, difficulty, and profitability across 11 major Proof-of-Work blockchains - all in one place.
+**bloxchaser** is a free, real-time dashboard for cryptocurrency miners. It tracks network hashrate, difficulty, and profitability across 12 major Proof-of-Work blockchains - all in one place.
 
 Whether you're a solo miner checking network health, a mining farm monitoring trends, or a researcher analyzing PoW networks - bloxchaser gives you instant visibility into what's happening on the blockchain.
 
@@ -52,7 +52,7 @@ Whether you're a solo miner checking network health, a mining farm monitoring tr
 ## What can you do on bloxchaser?
 
 ### See real-time network stats
-- Current hashrate and difficulty for 11 PoW networks
+- Current hashrate and difficulty for 12 PoW networks
 - 7-day, 30-day, and 90-day trend changes
 - Live price, 24h change, and market cap
 
@@ -73,7 +73,7 @@ Whether you're a solo miner checking network health, a mining farm monitoring tr
 
 ---
 
-## Supported Networks (11 Coins)
+## Supported Networks (12 Coins)
 
 | Coin | Symbol | Algorithm | What we track |
 |------|--------|-----------|---------------|
@@ -88,6 +88,7 @@ Whether you're a solo miner checking network health, a mining farm monitoring tr
 | Bitcoin Cash | BCH | SHA-256 | Hashrate, difficulty, price |
 | Ergo | ERG | Autolykos v2 | Hashrate, difficulty, price |
 | Conflux | CFX | Octopus | Hashrate, difficulty, price |
+| Verus | VRSC | VerusHash | Hashrate, difficulty, price |
 
 ---
 
@@ -194,6 +195,7 @@ bloxchaser/
 | RVN | Blockbook |
 | ZEC | zcashblockexplorer.com |
 | XMR, ERG, CFX | Minerstat |
+| VRSC | Verus Explorer + LuckPool |
 
 ### Price Data (4-tier fallback)
 1. **CoinGecko** - Primary
@@ -273,7 +275,7 @@ curl https://bloxchaser.com/api/hashrate
 ## Roadmap
 
 ### Completed
-- [x] 11 PoW networks with real-time data
+- [x] 12 PoW networks with real-time data
 - [x] Profit calculator
 - [x] 90-day historical data
 - [x] Public API

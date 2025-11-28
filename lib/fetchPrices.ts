@@ -42,6 +42,7 @@ interface CryptoPrices {
   bitcoinCash: CryptoPrice;
   ergo: CryptoPrice;
   conflux: CryptoPrice;
+  verus: CryptoPrice;
 }
 
 // CoinPaprika coin IDs mapping
@@ -57,6 +58,7 @@ const COINPAPRIKA_IDS = {
   bitcoinCash: 'bch-bitcoin-cash',
   ergo: 'efyt-ergo',
   conflux: 'cfx-conflux-network',
+  verus: 'vrsc-verus-coin',
 };
 
 async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
@@ -65,7 +67,7 @@ async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
       `${COINGECKO_API}/simple/price`,
       {
         params: {
-          ids: 'bitcoin,litecoin,monero,dogecoin,kaspa,ethereum-classic,ravencoin,zcash,bitcoin-cash,ergo',
+          ids: 'bitcoin,litecoin,monero,dogecoin,kaspa,ethereum-classic,ravencoin,zcash,bitcoin-cash,ergo,verus-coin',
           vs_currencies: 'usd',
           include_24hr_change: true,
           include_market_cap: true,
@@ -130,6 +132,11 @@ async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
         change24h: 0,
         marketCap: 0,
       },
+      verus: {
+        price: response.data['verus-coin'].usd,
+        change24h: response.data['verus-coin'].usd_24h_change,
+        marketCap: response.data['verus-coin'].usd_market_cap,
+      },
     };
   } catch (error) {
     console.error('CoinGecko API failed:', error);
@@ -140,7 +147,7 @@ async function fetchFromCoinGecko(): Promise<CryptoPrices | null> {
 async function fetchFromCoinPaprika(): Promise<CryptoPrices | null> {
   try {
     // Fetch all coins in parallel
-    const [btc, ltc, xmr, doge, kas, etc, rvn, zec, bch, erg, cfx] = await Promise.all([
+    const [btc, ltc, xmr, doge, kas, etc, rvn, zec, bch, erg, cfx, vrsc] = await Promise.all([
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.bitcoin}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.litecoin}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.monero}`, { timeout: 5000 }),
@@ -152,6 +159,7 @@ async function fetchFromCoinPaprika(): Promise<CryptoPrices | null> {
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.bitcoinCash}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.ergo}`, { timeout: 5000 }),
       axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.conflux}`, { timeout: 5000 }),
+      axios.get<CoinPaprikaTicker>(`${COINPAPRIKA_API}/tickers/${COINPAPRIKA_IDS.verus}`, { timeout: 5000 }),
     ]);
 
     return {
@@ -209,6 +217,11 @@ async function fetchFromCoinPaprika(): Promise<CryptoPrices | null> {
         price: cfx.data.quotes.USD.price,
         change24h: cfx.data.quotes.USD.percent_change_24h,
         marketCap: cfx.data.quotes.USD.market_cap,
+      },
+      verus: {
+        price: vrsc.data.quotes.USD.price,
+        change24h: vrsc.data.quotes.USD.percent_change_24h,
+        marketCap: vrsc.data.quotes.USD.market_cap,
       },
     };
   } catch (error) {
@@ -277,7 +290,7 @@ async function fetchFromCryptoCompare(): Promise<CryptoPrices | null> {
     const response = await axios.get(
       `${CRYPTOCOMPARE_API}/data/pricemultifull`,
       {
-        params: { fsyms: 'BTC,LTC,XMR,DOGE,KAS,ETC,RVN,ZEC,BCH,ERG,CFX', tsyms: 'USD' },
+        params: { fsyms: 'BTC,LTC,XMR,DOGE,KAS,ETC,RVN,ZEC,BCH,ERG,CFX,VRSC', tsyms: 'USD' },
         headers: { authorization: `Apikey ${CRYPTOCOMPARE_API_KEY}` },
         timeout: 10000,
       }
@@ -308,6 +321,7 @@ async function fetchFromCryptoCompare(): Promise<CryptoPrices | null> {
       bitcoinCash: extractCoin('BCH'),
       ergo: extractCoin('ERG'),
       conflux: extractCoin('CFX'),
+      verus: extractCoin('VRSC'),
     };
   } catch (error) {
     console.error('CryptoCompare API failed:', error);
@@ -386,5 +400,6 @@ export async function fetchCryptoPrices(): Promise<CryptoPrices> {
     bitcoinCash: { price: 0, change24h: 0, marketCap: 0 },
     ergo: { price: 0, change24h: 0, marketCap: 0 },
     conflux: { price: 0, change24h: 0, marketCap: 0 },
+    verus: { price: 0, change24h: 0, marketCap: 0 },
   };
 }

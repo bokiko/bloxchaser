@@ -11,6 +11,7 @@ import { fetchZcashHashrate } from '@/lib/fetchZcashData';
 import { fetchBitcoinCashHashrate } from '@/lib/fetchBitcoinCashData';
 import { fetchErgoHashrate } from '@/lib/fetchErgoData';
 import { fetchConfluxHashrate } from '@/lib/fetchConfluxData';
+import { fetchVerusHashrate } from '@/lib/fetchVerusData';
 import { fetchMinerstatCoins } from '@/lib/fetchMinerstatData';
 import { fetchCryptoPrices } from '@/lib/fetchPrices';
 
@@ -20,7 +21,7 @@ export const revalidate = 3600;
 async function getNetworkData(): Promise<NetworkStats[]> {
   try {
     // Fetch all data sources in parallel with individual error handling
-    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, ergoData, confluxData, minerstatCoins, prices] = await Promise.all([
+    const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, ergoData, confluxData, verusData, minerstatCoins, prices] = await Promise.all([
       fetchBitcoinHashrate().catch(err => { console.error('Bitcoin fetch failed:', err.message); return null; }),
       fetchLitecoinHashrate().catch(err => { console.error('Litecoin fetch failed:', err.message); return null; }),
       fetchDogecoinHashrate().catch(err => { console.error('Dogecoin fetch failed:', err.message); return null; }),
@@ -31,8 +32,9 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       fetchBitcoinCashHashrate().catch(err => { console.error('Bitcoin Cash fetch failed:', err.message); return null; }),
       fetchErgoHashrate().catch(err => { console.error('Ergo fetch failed:', err.message); return null; }),
       fetchConfluxHashrate().catch(err => { console.error('Conflux fetch failed:', err.message); return null; }),
+      fetchVerusHashrate().catch(err => { console.error('Verus fetch failed:', err.message); return null; }),
       fetchMinerstatCoins().catch(err => { console.error('Minerstat fetch failed:', err.message); return new Map(); }),
-      fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 }, ravencoin: { price: 0, change24h: 0, marketCap: 0 }, zcash: { price: 0, change24h: 0, marketCap: 0 }, bitcoinCash: { price: 0, change24h: 0, marketCap: 0 }, ergo: { price: 0, change24h: 0, marketCap: 0 }, conflux: { price: 0, change24h: 0, marketCap: 0 } }; }),
+      fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 }, ravencoin: { price: 0, change24h: 0, marketCap: 0 }, zcash: { price: 0, change24h: 0, marketCap: 0 }, bitcoinCash: { price: 0, change24h: 0, marketCap: 0 }, ergo: { price: 0, change24h: 0, marketCap: 0 }, conflux: { price: 0, change24h: 0, marketCap: 0 }, verus: { price: 0, change24h: 0, marketCap: 0 } }; }),
     ]);
 
     // Get coins from Minerstat (BTC for price/difficulty, LTC for price/difficulty, XMR, CFX for price)
@@ -116,6 +118,13 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       marketCap: prices.conflux.marketCap || 0,
     } : null;
 
+    const verusWithPrice = verusData ? {
+      ...verusData,
+      currentPrice: prices.verus.price || 0,
+      priceChange24h: prices.verus.change24h || 0,
+      marketCap: prices.verus.marketCap || 0,
+    } : null;
+
     // Sort by market cap (descending)
     const coins = [
       bitcoinWithPrice,
@@ -129,6 +138,7 @@ async function getNetworkData(): Promise<NetworkStats[]> {
       bitcoinCashWithPrice,
       ergoWithPrice,
       confluxWithPrice,
+      verusWithPrice,
     ].filter((coin): coin is NetworkStats => coin !== null);
 
     // Sort by market cap, highest first

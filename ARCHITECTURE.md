@@ -363,7 +363,7 @@ CoinGecko (Primary)
     ↓ (if fails)
 CoinPaprika (Secondary)
     ↓ (if fails)
-CryptoCompare (Tertiary - fetches all 11 coins in one call)
+CryptoCompare (Tertiary - fetches all 12 coins in one call)
     ↓ (if fails)
 Minerstat (Quaternary - via fetchMinerstatData.ts)
 ```
@@ -383,6 +383,7 @@ interface CryptoPrices {
   bitcoinCash: { price: number; change24h: number; marketCap: number };
   ergo: { price: number; change24h: number; marketCap: number };
   conflux: { price: number; change24h: number; marketCap: number };
+  verus: { price: number; change24h: number; marketCap: number };
 }
 ```
 
@@ -429,7 +430,7 @@ async function getNetworkData(): Promise<NetworkStats[]> {
 - Each coin renders as `<NetworkCard>`
 
 **Detail Pages (`app/coin/[symbol]/page.tsx`):**
-- Static generation for all 10 coins via `generateStaticParams()`
+- Static generation for all 12 coins via `generateStaticParams()`
 - Fetches coin-specific data via `getCoinData(symbol)`
 - Renders `<HashrateChart>` and `<CoinTabs>`
 
@@ -489,7 +490,7 @@ return {
 | KH/s | Kilohashes | `/ 1e3` | None currently |
 | MH/s | Megahashes | `/ 1e6` | None currently |
 | GH/s | Gigahashes | `/ 1e9` | Monero (XMR) |
-| TH/s | Terahashes | `/ 1e12` | Litecoin, Dogecoin, ETC, Ravencoin, Ergo |
+| TH/s | Terahashes | `/ 1e12` | Litecoin, Dogecoin, ETC, Ravencoin, Ergo, Verus |
 | PH/s | Petahashes | `/ 1e15` | Kaspa |
 | EH/s | Exahashes | `/ 1e18` | Bitcoin, Bitcoin Cash |
 | MSol/s | Mega-solutions | Special (Equihash) | Zcash |
@@ -743,6 +744,7 @@ const HASHRATE_UNITS = {
   ZEC: 'MSol/s',   // Mega-solutions (Equihash)
   ERG: 'TH/s',     // Terahashes (10^12)
   CFX: 'TH/s',     // Terahashes (10^12) - Octopus algorithm
+  VRSC: 'TH/s',    // Terahashes (10^12)
 };
 ```
 
@@ -761,6 +763,7 @@ const BLOCK_REWARDS = {
   ZEC: 3.125,      // Post-halving
   ERG: 9,          // 9 ERG per block
   CFX: 2,          // Current Conflux reward
+  VRSC: 3,         // 3 VRSC per block
 };
 ```
 
@@ -779,6 +782,7 @@ const BLOCK_CONFIG = {
   ZEC:  { time: 75,   perDay: 1152 },   // 75 seconds
   ERG:  { time: 120,  perDay: 720 },    // 2 minutes
   CFX:  { time: 0.5,  perDay: 172800 }, // 0.5 seconds
+  VRSC: { time: 60,   perDay: 1440 },   // 1 minute
 };
 ```
 
@@ -797,6 +801,7 @@ const BRAND_COLORS = {
   ZEC: '#F4B728',  // Zcash Yellow
   ERG: '#FF5722',  // Ergo Orange-Red
   CFX: '#1A1A2E',  // Conflux Dark Blue
+  VRSC: '#3165D4', // Verus Blue
 };
 ```
 
@@ -819,12 +824,13 @@ const BRAND_COLORS = {
 | ZEC | zcashblockexplorer.com | ✅ Good | Community explorer |
 | ERG | minerstat.com | ✅ Good | Special Autolykos calculation |
 | CFX | minerstat.com | ✅ Good | Octopus algorithm data |
+| VRSC | Verus Explorer API + LuckPool API | ✅ Good | Difficulty + hashrate data |
 
 ### Price API Fallback Chain
 
 1. **CoinGecko** (Primary) - Fast updates, rate limited during builds
 2. **CoinPaprika** (Secondary) - No API key required, reliable
-3. **CryptoCompare** (Tertiary) - Fetches all 11 coins in one call, requires API key
+3. **CryptoCompare** (Tertiary) - Fetches all 12 coins in one call, requires API key
 4. **Minerstat** (Quaternary) - Includes hashrate data, final fallback
 
 ---
@@ -840,7 +846,7 @@ export const revalidate = 3600;
 
 **Static Generation:** All coin detail pages are pre-rendered at build time via `generateStaticParams()`.
 
-**Build-time fetching:** Dashboard fetches all 10 networks in parallel with individual error handling.
+**Build-time fetching:** Dashboard fetches all 12 networks in parallel with individual error handling.
 
 ---
 

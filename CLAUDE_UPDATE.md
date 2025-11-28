@@ -21,7 +21,43 @@ This document summarizes all changes made to bloxchaser during recent developmen
 
 ---
 
-## Latest Session: Historical Data System & Conflux Integration (2025-11-24)
+## Latest Session: Verus (VRSC) Network Integration (2025-11-28)
+
+### 1. **Verus (VRSC) Network Integration**
+- **Added Verus** as the 12th supported PoW network
+- **Algorithm**: VerusHash (CPU-friendly proof-of-work)
+- **Block time**: 1 minute (1440 blocks per day)
+- **Block reward**: 3 VRSC per block
+- **Hashrate unit**: TH/s (Terahashes per second)
+
+### 2. **Data Sources - Official + Fallback**
+- **Primary source**: Official Verus Explorer API (`https://explorer.verus.io/api/status`) for difficulty
+- **Secondary source**: LuckPool API (`https://luckpool.net/verus/network`) for network hashrate
+- **Price source**: CoinGecko/CoinPaprika/CryptoCompare 4-tier fallback system
+- **Design principle**: Direct network data over 3rd-party aggregators (as requested)
+
+### 3. **Implementation Files Created/Modified**
+- **Created**: `/lib/fetchVerusData.ts` - Fetches real-time difficulty from Verus Explorer and hashrate from LuckPool
+- **Modified**: `/lib/fetchPrices.ts` - Added VRSC to all price fetching functions (CoinGecko, CoinPaprika, CryptoCompare)
+- **Modified**: `/app/page.tsx` - Added Verus to main dashboard with price integration
+- **Modified**: `/app/coin/[symbol]/page.tsx` - Added VRSC to coin detail pages
+- **Modified**: `/README.md` - Updated from 11 to 12 networks, added Verus to supported coins table
+- **Modified**: `/ARCHITECTURE.md` - Added VRSC constants (hashrate units, block rewards, block config, brand colors)
+
+### 4. **Technical Details**
+- **CoinGecko ID**: `verus-coin`
+- **CoinPaprika ID**: `vrsc-verus-coin`
+- **CryptoCompare Symbol**: `VRSC`
+- **Brand Color**: `#3165D4` (Verus Blue)
+- **Build Status**: ✅ Successful (12 coin pages generated)
+
+### 5. **Team Update**
+- **README updated**: Added team members @bokiko_io and @cloudbasedme
+- **Twitter handle**: Fixed from @blxchaser to @bloxchaser
+
+---
+
+## Previous Session: Historical Data System & Conflux Integration (2025-11-24)
 
 ### 1. **Conflux (CFX) Network Integration**
 - **Added Conflux** as the 11th supported PoW network
