@@ -261,6 +261,9 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
             {symbol === 'ERG' && (
               <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.18L17.82 8 12 11.82 6.18 8 12 4.18zM5 9.18L11 12.5v6.32L5 15.5V9.18zm14 0v6.32l-6 3.32V12.5l6-3.32z"/>
             )}
+            {symbol === 'VRSC' && (
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.5 5.5L12 17.5 7.5 7.5h2.25l2.25 5.75 2.25-5.75h2.25z"/>
+            )}
           </svg>
         </div>
       </div>

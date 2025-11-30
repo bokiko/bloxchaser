@@ -130,6 +130,9 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       'CFX': (
         <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zm0 2.18L19.82 8 12 11.82 4.18 8 12 4.18zM4 9.18L11 12.5v6.32L4 15.5V9.18zm16 0v6.32l-7 3.32V12.5l7-3.32z"/>
       ),
+      'VRSC': (
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.5 5.5L12 17.5 7.5 7.5h2.25l2.25 5.75 2.25-5.75h2.25z"/>
+      ),
     };
 
     const colors: Record<string, string> = {
