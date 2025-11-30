@@ -139,7 +139,7 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
       'DOGE': '#C2A633', // Dogecoin Gold
       'KAS': '#49E9C9',  // Kaspa Cyan
       'ETC': '#328332',  // Ethereum Classic Green
-      'RVN': '#384182',  // Ravencoin Purple
+      'RVN': '#f15b22',  // Ravencoin Orange
       'ZEC': '#F4B728',  // Zcash Yellow
       'BCH': '#8DC351',  // Bitcoin Cash Green
       'ERG': '#000000',  // Ergo Black

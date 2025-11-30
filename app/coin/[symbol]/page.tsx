@@ -216,7 +216,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       DOGE: { bg: 'from-yellow-400 to-yellow-500', icon: '#C2A633' },
       KAS: { bg: 'from-teal-500 to-cyan-600', icon: '#49E9C9' },
       ETC: { bg: 'from-green-600 to-emerald-700', icon: '#328332' },
-      RVN: { bg: 'from-blue-600 to-indigo-700', icon: '#384182' },
+      RVN: { bg: 'from-orange-600 to-orange-700', icon: '#f15b22' },
       ZEC: { bg: 'from-yellow-600 to-amber-700', icon: '#F4B728' },
       BCH: { bg: 'from-green-500 to-emerald-600', icon: '#8DC351' },
       ERG: { bg: 'from-gray-800 to-black', icon: '#000000' },

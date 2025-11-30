@@ -797,7 +797,7 @@ const BRAND_COLORS = {
   XMR: '#FF6600',  // Monero Orange
   KAS: '#49E9C9',  // Kaspa Cyan
   ETC: '#328332',  // Ethereum Classic Green
-  RVN: '#384182',  // Ravencoin Purple
+  RVN: '#f15b22',  // Ravencoin Orange
   ZEC: '#F4B728',  // Zcash Yellow
   ERG: '#000000',  // Ergo Black
   CFX: '#1A1A2E',  // Conflux Dark Blue
