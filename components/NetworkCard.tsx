@@ -133,17 +133,18 @@ export default function NetworkCard({ stats }: NetworkCardProps) {
     };
 
     const colors: Record<string, string> = {
-      'BTC': '#F7931A',
-      'LTC': '#345D9D',
-      'XMR': '#FF6600',
-      'DOGE': '#C2A633',
-      'KAS': '#49E9C9',
-      'ETC': '#328332',
-      'RVN': '#384182',
-      'ZEC': '#F4B728',
-      'BCH': '#8DC351',
-      'ERG': '#FF5722',
-      'CFX': '#00D4FF',
+      'BTC': '#F7931A',  // Bitcoin Orange
+      'LTC': '#345D9D',  // Litecoin Blue
+      'XMR': '#FF6600',  // Monero Orange
+      'DOGE': '#C2A633', // Dogecoin Gold
+      'KAS': '#49E9C9',  // Kaspa Cyan
+      'ETC': '#328332',  // Ethereum Classic Green
+      'RVN': '#384182',  // Ravencoin Purple
+      'ZEC': '#F4B728',  // Zcash Yellow
+      'BCH': '#8DC351',  // Bitcoin Cash Green
+      'ERG': '#000000',  // Ergo Black
+      'CFX': '#1A1A2E',  // Conflux Dark Blue
+      'VRSC': '#3165D4', // Verus Blue
     };
 
     return (

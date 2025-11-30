@@ -41,21 +41,21 @@ export async function generateStaticParams() {
 
 async function getCoinData(symbol: string): Promise<NetworkStats | null> {
   try {
-    // Fetch all data sources in parallel
+    // Fetch all data sources in parallel with individual error handling
     const [bitcoinData, litecoinData, dogecoinData, kaspaData, ethereumClassicData, ravencoinData, zcashData, bitcoinCashData, ergoData, confluxData, verusData, minerstatCoins, prices] = await Promise.all([
-      fetchBitcoinHashrate(),
-      fetchLitecoinHashrate(),
-      fetchDogecoinHashrate(),
-      fetchKaspaHashrate(),
-      fetchEthereumClassicHashrate(),
-      fetchRavencoinHashrate(),
-      fetchZcashHashrate(),
-      fetchBitcoinCashHashrate(),
-      fetchErgoHashrate(),
-      fetchConfluxHashrate(),
-      fetchVerusHashrate(),
-      fetchMinerstatCoins(),
-      fetchCryptoPrices(),
+      fetchBitcoinHashrate().catch(err => { console.error('Bitcoin fetch failed:', err.message); return null; }),
+      fetchLitecoinHashrate().catch(err => { console.error('Litecoin fetch failed:', err.message); return null; }),
+      fetchDogecoinHashrate().catch(err => { console.error('Dogecoin fetch failed:', err.message); return null; }),
+      fetchKaspaHashrate().catch(err => { console.error('Kaspa fetch failed:', err.message); return null; }),
+      fetchEthereumClassicHashrate().catch(err => { console.error('ETC fetch failed:', err.message); return null; }),
+      fetchRavencoinHashrate().catch(err => { console.error('Ravencoin fetch failed:', err.message); return null; }),
+      fetchZcashHashrate().catch(err => { console.error('Zcash fetch failed:', err.message); return null; }),
+      fetchBitcoinCashHashrate().catch(err => { console.error('Bitcoin Cash fetch failed:', err.message); return null; }),
+      fetchErgoHashrate().catch(err => { console.error('Ergo fetch failed:', err.message); return null; }),
+      fetchConfluxHashrate().catch(err => { console.error('Conflux fetch failed:', err.message); return null; }),
+      fetchVerusHashrate().catch(err => { console.error('Verus fetch failed:', err.message); return null; }),
+      fetchMinerstatCoins().catch(err => { console.error('Minerstat fetch failed:', err.message); return new Map(); }),
+      fetchCryptoPrices().catch(err => { console.error('Prices fetch failed:', err.message); return { bitcoin: { price: 0, change24h: 0, marketCap: 0 }, litecoin: { price: 0, change24h: 0, marketCap: 0 }, monero: { price: 0, change24h: 0, marketCap: 0 }, dogecoin: { price: 0, change24h: 0, marketCap: 0 }, kaspa: { price: 0, change24h: 0, marketCap: 0 }, ethereumClassic: { price: 0, change24h: 0, marketCap: 0 }, ravencoin: { price: 0, change24h: 0, marketCap: 0 }, zcash: { price: 0, change24h: 0, marketCap: 0 }, bitcoinCash: { price: 0, change24h: 0, marketCap: 0 }, ergo: { price: 0, change24h: 0, marketCap: 0 }, conflux: { price: 0, change24h: 0, marketCap: 0 }, verus: { price: 0, change24h: 0, marketCap: 0 } }; }),
     ]);
 
     const symbolUpper = symbol.toUpperCase();
@@ -63,36 +63,36 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
     // Build the coin data based on symbol
     if (symbolUpper === 'BTC') {
       const bitcoinMinerstatData = minerstatCoins.get('BTC');
-      return {
+      return bitcoinData ? {
         ...bitcoinData,
         currentPrice: bitcoinMinerstatData?.currentPrice || prices.bitcoin.price || 0,
         currentDifficulty: bitcoinMinerstatData?.currentDifficulty || bitcoinData.currentDifficulty,
         priceChange24h: prices.bitcoin.change24h || 0,
         marketCap: prices.bitcoin.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'LTC') {
       const litecoinMinerstatData = minerstatCoins.get('LTC');
-      return {
+      return litecoinData ? {
         ...litecoinData,
         currentPrice: litecoinMinerstatData?.currentPrice || prices.litecoin.price || 0,
         currentDifficulty: litecoinMinerstatData?.currentDifficulty || litecoinData.currentDifficulty,
         priceChange24h: prices.litecoin.change24h || 0,
         marketCap: prices.litecoin.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'DOGE') {
-      return {
+      return dogecoinData ? {
         ...dogecoinData,
         currentPrice: prices.dogecoin.price || 0,
         priceChange24h: prices.dogecoin.change24h || 0,
         marketCap: prices.dogecoin.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'KAS') {
-      return {
+      return kaspaData ? {
         ...kaspaData,
         currentPrice: prices.kaspa.price || 0,
         priceChange24h: prices.kaspa.change24h || 0,
         marketCap: prices.kaspa.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'XMR') {
       const xmrData = minerstatCoins.get('XMR');
       return xmrData ? {
@@ -104,48 +104,48 @@ async function getCoinData(symbol: string): Promise<NetworkStats | null> {
       // ETC already has price/market cap from Blockscout
       return ethereumClassicData;
     } else if (symbolUpper === 'RVN') {
-      return {
+      return ravencoinData ? {
         ...ravencoinData,
         currentPrice: prices.ravencoin.price || 0,
         priceChange24h: prices.ravencoin.change24h || 0,
         marketCap: prices.ravencoin.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'ZEC') {
-      return {
+      return zcashData ? {
         ...zcashData,
         currentPrice: prices.zcash.price || 0,
         priceChange24h: prices.zcash.change24h || 0,
         marketCap: prices.zcash.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'BCH') {
-      return {
+      return bitcoinCashData ? {
         ...bitcoinCashData,
         currentPrice: prices.bitcoinCash.price || 0,
         priceChange24h: prices.bitcoinCash.change24h || 0,
         marketCap: prices.bitcoinCash.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'ERG') {
-      return {
+      return ergoData ? {
         ...ergoData,
         currentPrice: prices.ergo.price || 0,
         priceChange24h: prices.ergo.change24h || 0,
         marketCap: prices.ergo.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'CFX') {
       const confluxMinerstatData = minerstatCoins.get('CFX');
-      return {
+      return confluxData ? {
         ...confluxData,
         currentPrice: confluxMinerstatData?.currentPrice || prices.conflux.price || 0,
         priceChange24h: prices.conflux.change24h || 0,
         marketCap: prices.conflux.marketCap || 0,
-      };
+      } : null;
     } else if (symbolUpper === 'VRSC') {
-      return {
+      return verusData ? {
         ...verusData,
         currentPrice: prices.verus.price || 0,
         priceChange24h: prices.verus.change24h || 0,
         marketCap: prices.verus.marketCap || 0,
-      };
+      } : null;
     }
 
     return null;
@@ -177,6 +177,7 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       case 'BCH': return 'EH/s'; // Exahashes (same as Bitcoin)
       case 'ERG': return 'TH/s'; // Terahashes (Autolykos v2)
       case 'CFX': return 'TH/s'; // Terahashes (Octopus)
+      case 'VRSC': return 'TH/s'; // Terahashes (VerusHash)
       default: return 'H/s';
     }
   };
@@ -218,8 +219,9 @@ export default async function CoinPage({ params }: { params: Promise<{ symbol: s
       RVN: { bg: 'from-blue-600 to-indigo-700', icon: '#384182' },
       ZEC: { bg: 'from-yellow-600 to-amber-700', icon: '#F4B728' },
       BCH: { bg: 'from-green-500 to-emerald-600', icon: '#8DC351' },
-      ERG: { bg: 'from-orange-500 to-red-600', icon: '#FF5722' },
+      ERG: { bg: 'from-gray-800 to-black', icon: '#000000' },
       CFX: { bg: 'from-cyan-500 to-blue-500', icon: '#00D4FF' },
+      VRSC: { bg: 'from-blue-600 to-blue-700', icon: '#3165D4' },
     };
 
     const config = colors[symbol as keyof typeof colors] || colors.BTC;

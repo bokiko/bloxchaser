@@ -799,7 +799,7 @@ const BRAND_COLORS = {
   ETC: '#328332',  // Ethereum Classic Green
   RVN: '#384182',  // Ravencoin Purple
   ZEC: '#F4B728',  // Zcash Yellow
-  ERG: '#FF5722',  // Ergo Orange-Red
+  ERG: '#000000',  // Ergo Black
   CFX: '#1A1A2E',  // Conflux Dark Blue
   VRSC: '#3165D4', // Verus Blue
 };
