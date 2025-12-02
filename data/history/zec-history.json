@@ -4,8 +4,8 @@
   "algorithm": "Equihash",
   "blockTime": 75,
   "dataStarted": "2025-05-25T13:20:03.000Z",
-  "lastUpdated": "2025-12-02T00:53:03.375Z",
-  "totalEntries": 13188,
+  "lastUpdated": "2025-12-02T04:21:49.410Z",
+  "totalEntries": 13189,
   "source": "Minerstat API (backfill)",
   "data": [
     {
@@ -79135,6 +79135,12 @@
       "d": 130940000,
       "h": 15620000000,
       "p": 346.14337885541
+    },
+    {
+      "t": 1764649309,
+      "d": 151540000,
+      "h": 16060000000,
+      "p": 331.53441996875
     }
   ]
 }
