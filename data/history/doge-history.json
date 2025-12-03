@@ -1,0 +1,17 @@
+{
+  "coin": "DOGE",
+  "name": "Dogecoin",
+  "algorithm": "Scrypt",
+  "blockTime": 60,
+  "dataStarted": "2025-12-03T00:53:03.535Z",
+  "lastUpdated": "2025-12-03T00:53:03.473Z",
+  "totalEntries": 1,
+  "data": [
+    {
+      "t": 1764723183,
+      "d": 41623531.433677,
+      "h": 2837646101413400,
+      "p": 0.14540322065423
+    }
+  ]
+}
